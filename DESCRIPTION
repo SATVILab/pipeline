@@ -1,0 +1,22 @@
+Package: analysispipeline
+Type: Package
+Title: Provides structured interface for statistical analysis
+Version: 0.1.0
+Author: Miguel Julio Rodo
+Maintainer: Miguel Julio Rodo <rdxmig002@myuct.ac.za>
+Description: More about what it does (maybe more than one line)
+    Use four spaces when indenting paragraphs within the Description.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
+Imports: 
+    purrr,
+    magrittr,
+    rlang,
+    ggplot2,
+    cowplot,
+    stringr
+RoxygenNote: 7.1.1
