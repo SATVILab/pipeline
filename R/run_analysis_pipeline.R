@@ -81,6 +81,11 @@ run_analysis_pipeline <- function(dir_proj,
                               dir_proj_empty = dir_proj_empty,
                               params_dots = params_dots)
 
+  # Convenience function to open folder inside project directory.
+  # Overrides analysispipeline::open_folder
+  open_folder <- function(path = dir_proj, ...) invisible(rstudioapi::selectFile(path = path, ...))
+  open_dir <- function(path = dir_proj, ...) invisible(rstudioapi::selectFile(path = path, ...))
+
   # replace NULL functions
   .replace_null_fns(env = env_main, expected_params = expected_params)
 

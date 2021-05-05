@@ -3,3 +3,4 @@
 analysispipeline.Rproj
 .Rproj.user
 tests/testthat/*.pdf
+inst/doc
