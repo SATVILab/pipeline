@@ -1,0 +1,25 @@
+---
+title: "analysispipeline"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{analysispipeline}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(analysispipeline)
+```
+
+
+
+- Decouple analysis process from manuscript-writing process. 
+  - Calculate relevant statistics during model-building stage. 
+  - Create highly-polished plots during manuscript-writing process, based on output from previous stage. 
