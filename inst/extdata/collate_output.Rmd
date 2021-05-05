@@ -1,0 +1,35 @@
+---
+title: "Untitled"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 3
+params:
+  params_dots: !r list()
+  dir_proj: ""
+---
+
+```{css, echo=FALSE}
+# to make sure tables don't wrap
+body .main-container {
+  max-width: 2560px !important;
+  width: 1280px !important;
+}
+body {
+  max-width: 2560px !important;
+}
+```
+
+```{r , include = FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+```{r , results = 'asis'}
+dir_base_vec <- c("exploration", "validation", "results")
+for(dir_base in dir_base_vec){
+  dir_curr <- file.path(params$dir_proj, dir_base)
+  pander::pandoc.header(stringr::str_to_title(dir_base))
+  analysispipeline::print_plots_in_dir(dir_curr)
+  analysispipeline::print_tbl_in_dir(dir_curr, split.tables = Inf, split.cells = Inf)
+}
+```

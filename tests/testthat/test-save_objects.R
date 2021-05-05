@@ -131,8 +131,8 @@ test_that("save_objects works", {
   # test if function behaves as it should
   # when obj_list is passed a ggplot2 object
   # not wrapped in a list
-  #expect_warning(save_objects(obj_list = p, dir_proj = dir_proj,
-  #                            dir_sub = c("test"), silent = FALSE))
+  suppressWarnings(save_objects(obj_list = p, dir_proj = dir_proj,
+                              dir_sub = c("test"), silent = FALSE))
   expect_true(file.exists(file.path(dir_proj, 'test',
                                     "obj_1.png")))
   expect_true(!file.exists(file.path(dir_proj, 'test',
