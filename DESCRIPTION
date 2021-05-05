@@ -12,6 +12,7 @@ LazyData: true
 Suggests: 
     knitr,
     rmarkdown,
+    rstudioapi,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 Imports: 

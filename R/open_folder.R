@@ -4,6 +4,8 @@
 #' which you can see all the files in a folder and open them using
 #' \code{Open with...}.
 #'
+#' @param path character. The initial working directory, from which the file dialog should begin browsing. Defaults to the current RStudio project directory.
+#'
 #' @inheritDotParams rstudioapi::selectFile
 #'
 #' @return \code{invisible(<selected_file>/NULL)} (\code{NULL} if no file were
@@ -19,8 +21,8 @@
 #' @examples
 #' open_folder()
 #' open_dir()
-#' open_folder(getwd())
-open_folder <- function(...) invisible(rstudioapi::selectFile(...))
+#' open_folder(.libPaths()[1])
+open_folder <- function(path = rstudioapi::getActiveProject, ...) invisible(rstudioapi::selectFile(path = path, ...))
 
 #' @rdname open_folder
-open_dir <- function(...) invisible(rstudioapi::selectFile(...))
+open_dir <- function(path = rstudioapi::getActiveProject,...) invisible(rstudioapi::selectFile(path = path, ...))

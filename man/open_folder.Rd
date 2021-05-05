@@ -5,19 +5,18 @@
 \alias{open_dir}
 \title{Open a dialogue box at selected folder}
 \usage{
-open_folder(...)
+open_folder(path = rstudioapi::getActiveProject, ...)
 
-open_dir(...)
+open_dir(path = rstudioapi::getActiveProject, ...)
 }
 \arguments{
+\item{path}{character. The initial working directory, from which the file dialog should begin browsing. Defaults to the current RStudio project directory.}
+
 \item{...}{
   Arguments passed on to \code{\link[rstudioapi:file-dialogs]{rstudioapi::selectFile}}
   \describe{
     \item{\code{caption}}{The window title.}
     \item{\code{label}}{The label to use for the 'Accept' / 'OK' button.}
-    \item{\code{path}}{The initial working directory, from which the file dialog
-should begin browsing. Defaults to the current RStudio
-project directory.}
     \item{\code{filter}}{A glob filter, to be used when attempting to open a file with a
 particular extension. For example, to scope the dialog to \R files, one could use
 \code{R Files (*.R)} here.}
