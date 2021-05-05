@@ -59,8 +59,7 @@ test_that("save_objects works", {
   # there are no names
   expect_warning(save_objects(1, dir_proj = dir_proj))
   expect_warning(save_objects(obj_list = list(1), dir_proj = dir_proj))
-  expect_warning(save_objects(obj_list = list(1, z = 1), dir_proj = dir_proj),
-                 empty = TRUE)
+  expect_warning(save_objects(obj_list = list(1, z = 1), dir_proj = dir_proj))
 
   # test that it works when some objects do not have unique names
   expect_warning(save_objects(x = 1, x = 2, dir_proj = dir_proj,
@@ -81,7 +80,7 @@ test_that("save_objects works", {
   # test that it works when some objects do not have unique names
   expect_warning(save_objects(x = 1, obj_list = list(x = 3),
                                dir_proj = dir_proj,
-                               dir_sub = "test"), silent = TRUE)
+                               dir_sub = "test"))
   expect_true(file.exists(file.path(dir_proj, "test",
                                     "x-uni_1.rds")))
   expect_true(file.exists(file.path(dir_proj, "test",
@@ -132,8 +131,8 @@ test_that("save_objects works", {
   # test if function behaves as it should
   # when obj_list is passed a ggplot2 object
   # not wrapped in a list
-  expect_warning(save_objects(obj_list = p, dir_proj = dir_proj,
-                dir_sub = c("test"), silent = FALSE))
+  #expect_warning(save_objects(obj_list = p, dir_proj = dir_proj,
+  #                            dir_sub = c("test"), silent = FALSE))
   expect_true(file.exists(file.path(dir_proj, 'test',
                                     "obj_1.png")))
   expect_true(!file.exists(file.path(dir_proj, 'test',

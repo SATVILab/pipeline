@@ -1,3 +1,5 @@
 .Rproj.user/*
 .Rhistory
 analysispipeline.Rproj
+.Rproj.user
+tests/testthat/*.pdf

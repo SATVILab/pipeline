@@ -146,6 +146,12 @@ run_analysis_pipeline <- function(dir_proj,
               dir_proj = dir_proj, fit_obj = fit_obj,
               params_dots = params_dots, fit_stats = fit_stats)
 
+  # create rmd
+  rmarkdown::render(input = system.file('extdata', 'collate_output.Rmd',
+                                        package = 'analysispipeline'),
+                    output_file = file.path(dir_proj, "output.Rmd"),
+                    params = lsit(params_dots = params_dots,
+                                  dir_proj = dir_proj))
 
   message('pipeline run complete')
   invisible(TRUE)
