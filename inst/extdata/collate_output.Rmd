@@ -30,6 +30,10 @@ for(dir_base in dir_base_vec){
   dir_curr <- file.path(params$dir_proj, dir_base)
   pander::pandoc.header(stringr::str_to_title(dir_base))
   analysispipeline::print_plots_in_dir(dir_curr)
-  analysispipeline::print_tbl_in_dir(dir_curr, split.tables = Inf, split.cells = Inf)
+  if(dir_base == "validation"){
+    # make comments
+    # add references
+  }
+  analysispipeline::print_tbl_in_dir(dir_curr)
 }
 ```

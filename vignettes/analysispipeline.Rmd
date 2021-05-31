@@ -18,8 +18,55 @@ knitr::opts_chunk$set(
 library(analysispipeline)
 ```
 
+# Introduction
 
+The purpose of the `analysispipeline` package is to 
 
 - Decouple analysis process from manuscript-writing process. 
   - Calculate relevant statistics during model-building stage. 
   - Create highly-polished plots during manuscript-writing process, based on output from previous stage. 
+  
+- `DataPackageR` 
+  - Processes (and documents processing) of data into .Rdata objects
+  
+- `tidymodels`
+  - Standardised calls to do common pre-processing tasks
+  - Standardised inputs to different types of model
+  - Standardised ways to vary model parameters
+
+- `targets`
+  - Very sophisticated. 
+  - Basically aims to do what analysispipeline aims to do, but with:
+    - In-built parallelisation 
+    - In-built prevention of running when nothing has changed
+    - Ability to loop over different combinations of parameters
+    - Other, more minor advantages:
+      - Creates plots of workflows. 
+      - Allows saving of workspaces for functions run in parallel
+  - Is there anything `analysispipeline` does that it doesn't?
+    - Well, with the functions to make exploratory, validation and fitting, 
+    we can "automatically" get basic plots that can be edited downstream. 
+    - I also obviously save things to the right directory. But possibly `target` can as well?
+    - Slightly more convenient to debug using `analysispipeline`. 
+    - Can create useful summary functions given the package structure (such as extracting all the p-values and associated plots). 
+  - Can we use `targets` as the "engine" for `analysispipeline`?
+    - Possibly as a simpler wrapper over `targets` that gives default output for individual models. 
+    
+- Role for `analysispipeline`
+  - Kind of like a poor man's `targets`!
+    - Or `Snakemake`
+  - But:
+    - It does seem easier to use 
+      - No need to create a `_target` file
+    - It does easily save outputs
+    - It does have functions for combining the output data correctly
+  - I think just suggest future integration with `targets`, focusing on the fact that at the moment you have:
+    - An easily-understood function to document all standard steps of model creation.
+  - There are many pipeline tools out there, so I think if we can motivate that is is particularly simple and offers automated generation of useful plots that can be inspected as neeed, with key outputs saved to another folder. 
+  - So, basically, we ultimately need to use `targets` and something like `tidymodels` to ensure that we have a workflow that works with as many model types as possible, is easily sped up using parallelisation or skipping and allows easy iteration, but what we offer is:
+  - A "pre-built" template for mixed-model analyses that:
+     - Allows the analyst to "zoom" in as far as possible (down to residual plots for an individaul model), and
+     - Zoom out then to summaries of results across all models. 
+     - Automatically makes "good-enough" versions of plots for consideration, that can then be extracted for final polishing for a paper
+  - Basically, we provide a general workflow for mixed-model analysis of many model objects that we can extend to provide improved/further functionality. 
+

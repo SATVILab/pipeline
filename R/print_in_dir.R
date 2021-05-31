@@ -27,7 +27,7 @@ print_tbl_in_dir <- function(dir_tbl, level = 3){
   if(length(obj_list) == 0) return(invisible(TRUE))
   for(i in seq_along(obj_list)){
     pander::pandoc.header(names(obj_list)[i], level = level)
-    pander::pandoc.table(dir_tbl)
+    pander::pandoc.table(obj_list[[i]], split.tables = Inf, split.cells = Inf)
   }
 }
 
