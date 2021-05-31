@@ -228,7 +228,7 @@ save_objects <- function(...,
 
 #' @title Embed PDF fonts
 embed_pdf <- function(fn){
-  if(!string::str_sub(fn, start = -3) == 'pdf'){
+  if(!stringr::str_sub(fn, start = -3) == 'pdf'){
     return(invisible(TRUE))
   }
   if(Sys.getenv(x = "R_GSCMD") == ""){
