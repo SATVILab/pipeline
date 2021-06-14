@@ -1,12 +1,23 @@
 #' @title Output code to print plots in a directory in a Knitr document
 #' @export
-print_plots_in_dir <- function(dir_plot, level = 3){
+print_plots_in_dir <- function(dir_plot, level = 3, format = c("png", "pdf")){
   # get plot paths
-  plot_path_vec <- list.files(dir_plot, full.names = TRUE, pattern = "png")
+  plot_path_vec <- purrr::map(format, function(x){
+    out <- list.files(dir_plot, full.names = TRUE, pattern = x)
+    if(length(out) == 0) return(NULL)
+    out
+  }) %>%
+    purrr::compact() %>%
+    unlist()
 
-  plot_name_vec <- list.files(dir_plot, full.names = FALSE, pattern = "png") %>%
-    stringr::str_remove(".png") %>%
-    stringr::str_remove(".pdf")
+  plot_name_vec <- purrr::map(format, function(x){
+    out <- list.files(dir_plot, full.names = FALSE, pattern = x)
+    if(length(out) == 0) return(NULL)
+    out
+  }) %>%
+    purrr::compact() %>%
+    unlist() %>%
+    stringr::str_sub(end = -5)
 
   # print plots for each batch
   for(i in seq_along(plot_name_vec)){
