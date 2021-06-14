@@ -242,3 +242,20 @@ embed_pdf <- function(fn){
   }
   invisible(TRUE)
 }
+
+#' @title Return RDS objects in a folder
+#'
+#' @return A named list, where the names are the names of the files and
+#' the elements are the RDS objects. If there are no RDS files in folder,
+#' then an empty list is returned.
+#' @export
+return_rds <- function(dir_obj){
+  fn_vec <- list.files(dir_obj, pattern = 'rds')
+  if(length(fn_vec) == 0) return(list())
+
+  obj_list <- purrr::map(fn_vec, function(fn){
+    readRDS(file.path(dir_obj, fn))
+  }) %>%
+    setNames(stringr::str_remove(fn_vec, ".rds"))
+  obj_list
+}
