@@ -1,4 +1,4 @@
-test_that("get_expected_params() matches expected_params in run_analysis_pipeline",{
+test_that("get_expected_params() matches expected_params in run",{
   expect_identical(get_expected_params(),
                    list("preprocess_fn" = c("data_raw", "params_dots", 'dir_proj'),
                         "plot_exp_fn" = c("data_raw", "data_mod", "dir_proj", "params_dots"),

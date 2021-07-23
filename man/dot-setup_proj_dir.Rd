@@ -27,7 +27,7 @@ to save object to global environment if need be, and then delete it upon functio
 exit.}
 
 \item{params_dots}{named list. Named list returned by \code{rlang::list2} applied to
-the ellipses of \code{run_analysis_pipeline}.}
+the ellipses of \code{run}.}
 }
 \value{
 A \code{character}, that is the absolute path of the project directory. Side effects
@@ -35,9 +35,9 @@ are that this project directory is created if it doesn't exist and emptied if \c
 is \code{TRUE}.
 }
 \description{
-Get the project directory, either as supplied (if \code{dir_proj} in \code{run_analysis_pipeline} is
+Get the project directory, either as supplied (if \code{dir_proj} in \code{run} is
 a \code{character}) or as created by the \code{dir_proj} parameter if its argument is a \code{function}
-taking its arguments from the dots of \code{run_analysis_pipeline}.
+taking its arguments from the dots of \code{run}.
 
 This directory is always created, and emptied if instructed.
 }

@@ -41,5 +41,5 @@ if a file were selcted.
 \examples{
 open_folder()
 open_dir()
-open_folder(getwd())
+open_folder(.libPaths()[1])
 }

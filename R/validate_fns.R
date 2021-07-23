@@ -1,7 +1,7 @@
 #' @title Check that functions have correct parameters
 #'
 #' @description
-#' Each function supplied to \code{run_analysis_pipeline} must have certain parameters.
+#' Each function supplied to \code{run} must have certain parameters.
 #' They alaways include \code{params_dots}.
 #'
 #' @param env environment. Environment in which the functions are found and to be saved.

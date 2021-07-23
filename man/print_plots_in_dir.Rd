@@ -4,7 +4,7 @@
 \alias{print_plots_in_dir}
 \title{Output code to print plots in a directory in a Knitr document}
 \usage{
-print_plots_in_dir(dir_plot, level = 3)
+print_plots_in_dir(dir_plot, level = 3, format = c("png", "pdf"))
 }
 \description{
 Output code to print plots in a directory in a Knitr document

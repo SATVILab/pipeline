@@ -34,26 +34,45 @@
 #' run in the order specified, passing data_raw, data_mod and params_dots from one to the other. Some functions
 #' expect extra output.
 #' @param data_raw dataframe. Contains raw data to be processed by \code{preprocess_fn} to create \code{data_mod}.
-#' @param debug_live character vector or \code{FALSE}. Functions provided to \code{run_analysis_pipeline}
+#' @param debug_live character vector or \code{FALSE}. Functions provided to \code{run}
 #' that at least partially match characters in \code{debug_live} at the start are run in \code{debugonce}.
 #' @param ... Named arguments passed onto all functions (preprocess_fn to plot_val_fn).
-#'
+#' @param skip_if_already_run logical. If \code{TRUE} and the project directory 
+#' exists already,, then the pipeline is 
+#' not run. Default is \code{FALSE}.
 #' @export
-run_analysis_pipeline <- function(dir_proj,
-                                  dir_proj_empty = FALSE,
-                                  data_raw,
-                                  preprocess_fn = NULL,
-                                  plot_exp_fn = NULL,
-                                  fit_fn = NULL,
-                                  get_fit_stats_fn = NULL,
-                                  plot_fit_fn = NULL,
-                                  plot_val_fn = NULL,
-                                  debug_live = FALSE,
-                                  ...){
+run <- function(dir_proj,
+                dir_proj_empty = FALSE,
+                data_raw,
+                preprocess_fn = NULL,
+                plot_exp_fn = NULL,
+                fit_fn = NULL,
+                get_fit_stats_fn = NULL,
+                plot_fit_fn = NULL,
+                plot_val_fn = NULL,
+                debug_live = FALSE,
+                skip_if_already_run = FALSE,
+                ...){
 
   # ====================================
   # Preparation
   # ====================================
+  
+  if (skip_if_already_run) {
+    if(file.exists(file.path(dir_proj, "output.html"))) {
+      invisible(dir_proj)
+    }
+    }
+  
+  # get project directory, creating it if need be
+  if (dir.exists(dir_proj)) {
+    if (dir_proj_empty) {
+      unlink(dir_proj, recursive = TRUE)
+      dir.create(dir_proj, recursive = TRUE)
+    }
+  } else {
+    dir.create(dir_proj, recursive = TRUE)
+  }
 
   # check that data is supplied
   if(missing(data_raw)) stop("data_raw must be supplied.")
@@ -75,11 +94,6 @@ run_analysis_pipeline <- function(dir_proj,
 
   # collect dots
   params_dots <- rlang::list2(...)
-
-  # get project directory, creating it if need be
-  dir_proj <- .setup_proj_dir(dir_proj = dir_proj,
-                              dir_proj_empty = dir_proj_empty,
-                              params_dots = params_dots)
 
   # replace NULL functions
   .replace_null_fns(env = env_main, expected_params = expected_params)

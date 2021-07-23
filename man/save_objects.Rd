@@ -12,6 +12,7 @@ save_objects(
   empty = TRUE,
   silent = FALSE,
   gg_device = "png",
+  embed = TRUE,
   height = 10,
   width = 12
 )

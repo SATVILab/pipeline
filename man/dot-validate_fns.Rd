@@ -14,7 +14,7 @@ If \code{NULL}, then a default list is used. Run \code{body(analysispipeline:::.
 Default is \code{NULL}.}
 }
 \description{
-Each function supplied to \code{run_analysis_pipeline} must have certain parameters.
+Each function supplied to \code{run} must have certain parameters.
 They alaways include \code{params_dots}.
 }
 \examples{
