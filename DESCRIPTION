@@ -1,4 +1,4 @@
-Package: analysispipeline
+Package: pipeline
 Type: Package
 Title: Provides structured interface for statistical analysis
 Version: 0.1.0

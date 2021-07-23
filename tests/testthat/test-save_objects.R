@@ -2,7 +2,7 @@ test_that("save_objects works", {
   dir_proj <- tempdir()
 
   # test that saving using ... works
-  x <- 1; y <- 2
+  x <- 1; y <- 2  
   save_objects(x = x, y = y, dir_proj = dir_proj, dir_sub = "test")
   expect_true(file.exists(file.path(dir_proj, "test", "x.rds")))
   expect_true(file.exists(file.path(dir_proj, "test", "y.rds")))
