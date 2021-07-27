@@ -8,7 +8,7 @@
 #' This directory is always created, and emptied if instructed.
 #'
 #' @inheritParams run
-#' @param params_dots named list. Named list returned by \code{rlang::list2} applied to
+#' @param p_dots named list. Named list returned by \code{rlang::list2} applied to
 #' the ellipses of \code{run}.
 #'
 #' @return A \code{character}, that is the absolute path of the project directory. Side effects
@@ -16,7 +16,7 @@
 #' is \code{TRUE}.
 .setup_proj_dir <- function(dir_proj,
                             dir_proj_empty,
-                            params_dots){
+                            p_dots){
   # check that dir_proj is a character or a function.
   if(missing(dir_proj) || !("character" %in% class(dir_proj) || base::is.function(dir_proj))){
     stop("dir_proj should be a function or a character.")
@@ -24,9 +24,9 @@
 
   # create dir_proj if need be
   if(base::is.function(dir_proj)){
-    if(missing(params_dots)) stop("params_dots must be supplied when dir_proj is a function.")
+    if(missing(p_dots)) stop("p_dots must be supplied when dir_proj is a function.")
     if(is.null(formals(dir_proj)) || length(formals(dir_proj)) != 1) stop("dir_proj must accept one argument if it's a function.")
-    dir_proj <- dir_proj(params_dots)
+    dir_proj <- dir_proj(p_dots)
     if(!is.character(dir_proj)) stop("output of dir_proj function must be a character")
   }
 

@@ -5,7 +5,7 @@ output:
     toc: true
     toc_depth: 3
 params:
-  params_dots: !r list()
+  p_dots: !r list()
   dir_proj: ""
 ---
 
@@ -25,15 +25,19 @@ knitr::opts_chunk$set(echo = FALSE)
 ```
 
 ```{r , results = 'asis'}
-dir_base_vec <- c("exploration", "validation", "results")
+dir_base_vec <- c("exp", "val", "extr", "disp")
 for(dir_base in dir_base_vec){
   dir_curr <- file.path(params$dir_proj, dir_base)
   pander::pandoc.header(stringr::str_to_title(dir_base))
-  analysispipeline::print_plots_in_dir(dir_curr)
-  if(dir_base == "validation"){
+  format <- ifelse(
+    knitr::is_html_output(),
+    "png", 
+    "pdf")
+  pipeline::print_plots_in_dir(dir_curr, format = format)
+  if(dir_base == "val"){
     # make comments
     # add references
   }
-  analysispipeline::print_tbl_in_dir(dir_curr)
+  pipeline::print_tbl_in_dir(dir_curr)
 }
 ```

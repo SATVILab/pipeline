@@ -2,7 +2,7 @@
 #'
 #' @description
 #' Each function supplied to \code{run} must have certain parameters.
-#' They alaways include \code{params_dots}.
+#' They alaways include \code{p_dots}.
 #'
 #' @param env environment. Environment in which the functions are found and to be saved.
 #' @param expected_params list. Names are names of functions to be validated and values are expected parameters.

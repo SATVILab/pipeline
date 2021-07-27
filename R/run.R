@@ -30,144 +30,361 @@
 #' if simply ensuring that they're not run in global environment, then add the function
 #' to save object to global environment if need be, and then delete it upon function
 #' exit.
-#' @param preprocess_fn,plot_exp_fn,fit_fn,get_fit_stats_fn,plot_fit_fn,plot_val_fn functions or \code{NULL}. Functions
-#' run in the order specified, passing data_raw, data_mod and params_dots from one to the other. Some functions
+#' @param preprocess,explore,fit,extract,display,validate functions or \code{NULL}. Functions
+#' run in the order specified, passing data_raw, data_mod and p_dots from one to the other. Some functions
 #' expect extra output.
-#' @param data_raw dataframe. Contains raw data to be processed by \code{preprocess_fn} to create \code{data_mod}.
+#' @param data_raw dataframe. Contains raw data to be processed by \code{preprocess} to create \code{data_mod}.
 #' @param debug_live character vector or \code{FALSE}. Functions provided to \code{run}
 #' that at least partially match characters in \code{debug_live} at the start are run in \code{debugonce}.
-#' @param ... Named arguments passed onto all functions (preprocess_fn to plot_val_fn).
-#' @param skip_if_already_run logical. If \code{TRUE} and the project directory 
-#' exists already,, then the pipeline is 
-#' not run. Default is \code{FALSE}.
+#' @param ... Named arguments passed onto all functions (preprocess to validate).
+#' @param force_rerun logical.
+#' If \code{TRUE}, then the pipeline
+#' is rerun even if \code{file.path(dir_proj, "output.html")} exists. 
+#' Default is \code{TRUE}.
 #' @export
 run <- function(dir_proj,
-                dir_proj_empty = FALSE,
+                delete_old_run = TRUE,
                 data_raw,
-                preprocess_fn = NULL,
-                plot_exp_fn = NULL,
-                fit_fn = NULL,
-                get_fit_stats_fn = NULL,
-                plot_fit_fn = NULL,
-                plot_val_fn = NULL,
+                preprocess = NULL,
+                explore = NULL,
+                fit = NULL,
+                validate = NULL,
+                extract = NULL,
+                display = NULL,
                 debug_live = FALSE,
-                skip_if_already_run = FALSE,
+                force_rerun = "all",
+                ignore_old_stage_output = NULL,
+                # what is the purpose of this?
+                # well, let's say you've re-written the fit function, 
+                # and you want to rerun it. 
                 ...){
+  
+  message(dir_proj)
 
   # ====================================
   # Preparation
   # ====================================
   
-  if (skip_if_already_run) {
-    if(file.exists(file.path(dir_proj, "output.html"))) {
-      invisible(dir_proj)
+  fn_list <- list(
+    "preprocess" = preprocess, 
+    "explore" = explore, 
+    "fit" = fit, 
+    "validate" = validate, 
+    "extract" = extract, 
+    "display" = display
+  )
+  
+  
+  stage_vec <- c(
+    "preprocess", "explore", "fit",
+    "validate", "extract", "display"
+  )
+  stage_vec_pattern <- paste0("^", substr(stage_vec, start = 1, stop = 3))
+  
+  if (!all(grepl(paste0("^all$|^none?$|", 
+                        paste0(stage_vec_pattern, collapse = "|"), 
+                        collapse = ""), force_rerun))) {
+    stop(paste0(
+      "force_rerun  must include only ", 
+      " include elements that ", 
+      "match at least the first three letters from:\n'",
+      paste0(stage_vec, collapse = "', '"),
+      ", 'all' or 'none'."
+      ))
+  }
+  
+  if (any(grepl("^all$|^none$", force_rerun)) &&
+      length(force_rerun) > 1) {
+    stop(paste0(
+      "force_rerun must only have ", 
+      "'all' or 'none' ", 
+      "on their own"))
+  }
+  
+  if (grepl("^none?$", force_rerun)) {
+    if (file.exists(file.path(dir_proj, "output.html"))) {
+      return(invisible(dir_proj))
+    } else {
+      stages_to_force_vec <- "none"
     }
+  } else {
+    if (grepl("^all$", force_rerun)) {
+      stages_to_force_vec <- stage_vec
+    } else {
+      
+      stages_to_force_vec <- vapply(force_rerun, function(stg) {
+        stage_vec[vapply(stage_vec_pattern,
+                         function(x) grepl(x, stg), logical(1))]
+      }, character(1)) %>%
+        setNames(NULL)
     }
+  }
+  
+  if (!identical(stages_to_force_vec[1], "none")) {
+    stage_link_list <- list(
+      "preprocess" = stage_vec, 
+      "explore" = stage_vec[2], 
+      "fit" = stage_vec[3:6], 
+      "validate" = stage_vec[4], 
+      "extract" = stage_vec[5:6], 
+      "display" = stage_vec[6]
+    )
+    stages_to_force_vec <- lapply(stages_to_force_vec, function(stg) {
+      stage_link_list[stg]
+    }) %>%
+      unlist() %>%
+      unique()
+  }
+  stages_to_run_if_needed_vec <- setdiff(stage_vec, stages_to_force_vec)
   
   # get project directory, creating it if need be
+  stage_to_basename_vec <- c(
+    "preprocess" = "prep",
+    "explore" = "exp", 
+    "fit" = "fit", 
+    "display" = "disp", 
+    "extract" = "extr", 
+    "validation" = "val"
+  )
   if (dir.exists(dir_proj)) {
-    if (dir_proj_empty) {
-      unlink(dir_proj, recursive = TRUE)
-      dir.create(dir_proj, recursive = TRUE)
+    for (stg in stage_vec) {
+      if(stg %in% stages_to_force_vec && 
+         delete_old_run) {
+        dir_stg <- file.path(dir_proj, stage_to_basename_vec[stg])
+        unlink(dir_stg, recursive = TRUE)
+      }
     }
   } else {
     dir.create(dir_proj, recursive = TRUE)
   }
+  
+  print(dir_proj)
 
   # check that data is supplied
   if(missing(data_raw)) stop("data_raw must be supplied.")
 
   # create expected parameters
   # remember to change get_expected_params and its test when this is changed
-  expected_params <- list("preprocess_fn" = c("data_raw", "params_dots", 'dir_proj'),
-                          "plot_exp_fn" = c("data_raw", "data_mod", "dir_proj", "params_dots"),
-                          'fit_fn' = c("data_mod", "params_dots", "dir_proj"),
-                          'get_fit_stats_fn' = c("data_raw", "data_mod", "dir_proj",
-                                                 "params_dots", "fit_obj"),
-                          "plot_fit_fn" = c("data_raw", "data_mod", "dir_proj",
-                                            "params_dots", "fit_obj", "fit_stats"),
-                          "plot_val_fn" = c("data_raw", "data_mod", "dir_proj",
-                                            "params_dots", "fit_obj"))
+  expected_params <- list("preprocess" = c("data_raw", "p_dots", "dir_proj"),
+                          "explore" = c("data_raw", "data_mod", "dir_proj", "p_dots"),
+                          "fit" = c("data_mod", "p_dots", "dir_proj"),
+                          "extract" = c("data_raw", "data_mod", "dir_proj",
+                                        "p_dots", "fit_obj"),
+                          "display" = c("data_raw", "data_mod", "dir_proj",
+                                        "p_dots", "fit_obj", "fit_stats"),
+                          "validate" = c("data_raw", "data_mod", "dir_proj",
+                                            "p_dots", "fit_obj"))
 
   # save current environment as a variable
-  env_main <- environment()
+  # env_main <- environment()
 
   # collect dots
-  params_dots <- rlang::list2(...)
-
-  # replace NULL functions
-  .replace_null_fns(env = env_main, expected_params = expected_params)
-
-  # check that functions have correct parameters, if not NULL
-  .validate_fns(env = env_main, expected_params = NULL)
-
-  # save dot parameters and functions
-  save_objects(params_dots = params_dots,
-               preprocess_fn = preprocess_fn,
-               plot_exp_fn = plot_exp_fn, fit_fn = fit_fn,
-               get_fit_stats_fn = get_fit_stats_fn,
-               plot_fit_fn = plot_fit_fn, plot_val_fn = plot_val_fn,
-               dir_proj = dir_proj, dir_sub = c("params"),
-               empty = TRUE)
-
-  # debug function if requested
-
-
-  # debug all functions
-  if(!identical(debug, FALSE)){
-    on.exit(try(suppressWarnings(undebug(preprocess_fn)), silent = TRUE), add = TRUE)
-    on.exit(try(suppressWarnings(undebug(plot_exp_fn)), silent = TRUE), add = TRUE)
-    on.exit(try(suppressWarnings(undebug(fit_fn)), silent = TRUE), add = TRUE)
-    on.exit(try(suppressWarnings(undebug(get_fit_stats_fn)), silent = TRUE), add = TRUE)
-    on.exit(try(suppressWarnings(undebug(plot_fit_fn)), silent = TRUE), add = TRUE)
-    on.exit(try(suppressWarnings(undebug(plot_val_fn)), silent = TRUE), add = TRUE)
+  p_dots <- list(...)
+  if (any(identical(names(p_dots), ""))) {
+    stop("All dotted arguments must be named.")
   }
 
-  .add_debug(fn_name = names(expected_params),
-             debug_live = debug_live, env = env_main)
+  # check that functions have correct parameters, if not NULL
+  # .validate_fns(env = env_main, expected_params = NULL)
 
+  # save dot parameters and functions
+  dir_params <- file.path(dir_proj, "params")
+  if (identical(stages_to_force_vec, stage_vec)) {
+    unlink(dir_params, recursive = TRUE)
+  }
+  stages_to_run_vec <- vapply(
+    stage_vec, 
+    function(x) {
+      if (x %in% stages_to_force_vec) return(x)
+      completed_stage_indicator <- file.path(
+        dir_proj, stage_to_basename_vec[x], "completed.rds"
+        )
+      ifelse(file.exists(completed_stage_indicator), 
+             "", x)
+    }, 
+    character(1)
+  )
+  stages_to_run_vec <- stages_to_run_vec[!stages_to_run_vec == ""] %>%
+    setNames(NULL)
+  
+  stages_to_run_vec <- stages_to_run_vec[
+    vapply(stages_to_run_vec, function(stg) {
+      !is.null(fn_list[[stg]])
+    }, logical(1))
+  ]
+  if (length(stages_to_run_vec) == 0) {
+    message("no stages to run")
+    
+    if (!file.exists(file.path(dir_proj, "output.html"))) {
+      message("creating output.html")
+      # create rmd
+      rmarkdown::render(input = system.file("extdata", "collate_output.Rmd",
+                                            package = "analysispipeline"),
+                        output_file = file.path(dir_proj, "output.html"),
+                        params = list(p_dots = p_dots,
+                                      dir_proj = dir_proj),
+                        quiet = TRUE)
+    }
+    
+    message("pipeline run complete")
+    
+    return(invisible(dir_proj))
+  }
+  
+  save_objects(
+    obj_list = fn_list[stages_to_run_vec], 
+    dir_proj = dir_proj, 
+    dir_sub = "params"
+  )
 
-  # pre-process data
-  data_mod <- preprocess_fn(data_raw = data_raw, params_dots = params_dots,
-                            dir_proj = dir_proj)
+  if (!all(grepl(paste0("^all$|^none?$|", 
+                        paste0(stage_vec_pattern, collapse = "|"), 
+                        collapse = ""), debug_live))) {
+    stop(paste0(
+      "debug_live must include only ", 
+      " include elements that ", 
+      "match at least the first three letters from:\n'",
+      paste0(stage_vec, collapse = "', '"),
+      ", 'all' or 'none'."
+    ))
+  }
+  
+  if (any(grepl("^all$|^none$", debug_live)) &&
+      length(debug_live) > 1) {
+    stop(paste0(
+      "debug_live must only have ", 
+      "'all' or 'none' ", 
+      "on their own"))
+  }
+  
+
+  if (grepl("^all$", debug_live)) {
+    fn_to_debug_vec <- stage_vec
+  } else if(!all(grepl("^none$", debug_live))) {
+    fn_to_debug_vec <- vapply(debug_live, function(stg) {
+      stage_vec[vapply(stage_vec_pattern,
+                       function(x) grepl(x, stg), logical(1))]
+      }, character(1)) %>%
+      setNames(NULL)
+  } else fn_to_debug_vec <- NULL
+
+  for (i in seq_along(fn_to_debug_vec)) {
+    if(!is.function(fn_list[[fn_to_debug_vec[i]]])) next
+    parse_text <- paste0(
+      "debugonce(", fn_to_debug_vec[i], ")"
+    )
+    eval(parse(text = parse_text))
+    parse_text <- paste0(
+      "on.exit(try(suppressWarnings(undebug(", 
+      fn_to_debug_vec[i], 
+      ")), silent = TRUE), add = TRUE)"
+    )
+    eval(parse(text = parse_text))
+  }
 
   # ====================================
   # Analysis
   # ====================================
-
-  # make exploratory plots
-  plot_exp_fn(data_raw = data_raw, data_mod = data_mod,
-              dir_proj = dir_proj,
-              params_dots = params_dots)
-
-  # fit model
-  fit_obj <- fit_fn(data_mod = data_mod, params_dots = params_dots,
-                    dir_proj = dir_proj)
-
-  # make validation plots
-  plot_val_fn(data_raw = data_raw, data_mod = data_mod,
-              dir_proj = dir_proj, fit_obj = fit_obj,
-              params_dots = params_dots)
-
-  # tables
-  fit_stats <- get_fit_stats_fn(data_raw = data_raw, data_mod = data_mod,
-                                fit_obj = fit_obj, params_dots = params_dots,
-                                dir_proj = dir_proj)
-
-
-  # make results plots
-  plot_fit_fn(data_raw = data_raw, data_mod = data_mod,
-              dir_proj = dir_proj, fit_obj = fit_obj,
-              params_dots = params_dots, fit_stats = fit_stats)
+  
+  if (!"preprocess" %in% stages_to_run_vec) {
+    data_mod <- readRDS(
+      file.path(
+        dir_proj,
+        stage_to_basename_vec["preprocess"], 
+        "data_mod.rds"
+        )
+    )
+  }
+  if (!"fit" %in% stages_to_run_vec) {
+    fit_obj <- readRDS(
+      file.path(
+        dir_proj,
+        stage_to_basename_vec["fit"], 
+        "mod_list.rds"
+        )
+    )
+  }
+  if (!"extract" %in% stages_to_run_vec) {
+    fit_stats <- readRDS(
+      file.path(
+        dir_proj,
+        stage_to_basename_vec["extract"], 
+        "fit_stats.rds"
+        )
+    )
+  }
+  
+  for (stg in stages_to_run_vec) {
+    completion_indicator_path <- file.path(
+      dir_proj, 
+      stage_to_basename_vec[stg], 
+      "completed.rds"
+    )
+    stg_to_nm_vec <- c(
+      "preprocess" = "data_mod",
+      "explore" = "x",
+      "fit" = "fit_obj",
+      "validate" = "x",
+      "extract" = "fit_stats",
+      "display" = "x"
+    )
+    nm <- stg_to_nm_vec[stg]
+    dir_stg <- file.path(
+      dir_proj, 
+      stage_to_basename_vec[stg]
+      )
+    unlink(
+      dir_stg, 
+      recursive = TRUE
+    )
+    dir.create(
+      dir_stg, 
+      recursive = TRUE)
+    p_dots$dir_stg <- dir_stg
+    
+    parse_text <- paste0(
+      nm, 
+      " <- ",
+      stg, 
+      "(data_raw = data_raw, ", 
+      "dir_proj = dir_proj, ", 
+      "p_dots = p_dots"
+    )
+    if (!stg == "preprocess") {
+      parse_text <- paste0(parse_text, ", data_mod = data_mod")
+    }
+    
+    if (stg %in% c("validate", "extract", "display")) {
+      parse_text <- paste0(parse_text, ", fit_obj = fit_obj")
+    }
+    if (stg == "display") {
+      parse_text <- paste0(parse_text, ", fit_stats = fit_stats")
+    }
+    parse_text <- paste0(parse_text, ")")
+    eval(parse(text = parse_text))
+    
+    if (stg == "preprocess") {
+      if (!file.exists(file.path(dir_stg, "data_mod.rds"))) {
+        saveRDS(data_mod, file.path(dir_stg, "data_mod.rds"))
+      }
+    }
+    
+    saveRDS(TRUE, completion_indicator_path)
+  }
+  
+  try(rm("x"), silent = TRUE)
 
   # create rmd
-  rmarkdown::render(input = system.file('extdata', 'collate_output.Rmd',
-                                        package = 'analysispipeline'),
+  message("creating output.html")
+  # create rmd
+  rmarkdown::render(input = system.file("extdata", "collate_output.Rmd",
+                                        package = "pipeline"),
                     output_file = file.path(dir_proj, "output.html"),
-                    params = list(params_dots = params_dots,
+                    params = list(p_dots = p_dots,
                                   dir_proj = dir_proj),
                     quiet = TRUE)
 
-  message('pipeline run complete')
-  invisible(TRUE)
+  message("pipeline run complete")
+  
+  return(invisible(dir_proj))
 }

@@ -29,7 +29,7 @@ testthat::test_that(".setup_proj_dir works if dir_proj is a function", {
   dir_proj <- function(x) file.path(tempdir(), "test", x)
   dir_proj_out_of_fn <- .setup_proj_dir(dir_proj = dir_proj,
                                         dir_proj_empty = FALSE,
-                                        params_dots = 1)
+                                        p_dots = 1)
   expect_true(is.character(dir_proj_out_of_fn))
   expect_true(file.exists(dir_proj_out_of_fn))
   expect_match(dir_proj_out_of_fn,
