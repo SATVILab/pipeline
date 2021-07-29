@@ -26,9 +26,13 @@ knitr::opts_chunk$set(echo = FALSE)
 
 ```{r , results = 'asis'}
 dir_base_vec <- c("exp", "val", "extr", "disp")
+short_to_full_dir_base <- c("exp" = "Exploration", 
+                            "val" = "Validation", 
+                            "extr" = "Results: tables", 
+                            "disp" = "Results: plots")
 for(dir_base in dir_base_vec){
   dir_curr <- file.path(params$dir_proj, dir_base)
-  pander::pandoc.header(stringr::str_to_title(dir_base))
+  pander::pandoc.header(short_to_full_dir_base[dir_base])
   format <- ifelse(
     knitr::is_html_output(),
     "png", 
@@ -39,5 +43,40 @@ for(dir_base in dir_base_vec){
     # add references
   }
   pipeline::print_tbl_in_dir(dir_curr)
+}
+
+```
+
+```{r , results = "asis"}
+path_mod <- file.path(params$dir_proj, "fit", "mod_list.rds")
+if (file.exists(path_mod)) {
+  pander::pandoc.header("Raw model output", level = 1)
+}
+```
+
+```{r , results = "asis"}
+path_mod <- file.path(params$dir_proj, "fit", "mod_list.rds")
+if (file.exists(path_mod)) {
+  pander::pandoc.header("Short summary", level = 2)
+}
+```
+
+```{r }
+if (file.exists(path_mod)) {
+  fit_obj <- try(readRDS(path_mod), silent = TRUE)
+  try(fit_obj$full, silent = TRUE)
+}
+```
+
+```{r , results = "asis"}
+path_mod <- file.path(params$dir_proj, "fit", "mod_list.rds")
+if (file.exists(path_mod)) {
+  pander::pandoc.header("Long summary", level = 2)
+}
+```
+
+```{r }
+if (file.exists(path_mod)) {
+  try(summary(fit_obj$full), silent = TRUE)
 }
 ```
