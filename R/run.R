@@ -219,7 +219,7 @@ run <- function(dir_proj,
       message("creating output.html")
       # create rmd
       rmarkdown::render(input = system.file("extdata", "collate_output.Rmd",
-                                            package = "analysispipeline"),
+                                            package = "pipeline"),
                         output_file = file.path(dir_proj, "output.html"),
                         params = list(p_dots = p_dots,
                                       dir_proj = dir_proj),
