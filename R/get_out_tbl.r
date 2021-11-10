@@ -11,8 +11,6 @@
 #' If \code{NULL}, then all directories
 #' inside \code{dir_proj} are included.
 #' Default is \code{NULL}.
-#' @param recursive 
-#' 
 #' @param iter dataframe with one row (or,
 #' alternatively, a list that is coerced to
 #' a dataframe (tibble) with one row).
