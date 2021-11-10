@@ -6,16 +6,17 @@
 \usage{
 run(
   dir_proj,
-  dir_proj_empty = FALSE,
+  delete_old_run = TRUE,
   data_raw,
-  preprocess_fn = NULL,
-  plot_exp_fn = NULL,
-  fit_fn = NULL,
-  get_fit_stats_fn = NULL,
-  plot_fit_fn = NULL,
-  plot_val_fn = NULL,
+  preprocess = NULL,
+  explore = NULL,
+  fit = NULL,
+  validate = NULL,
+  extract = NULL,
+  display = NULL,
   debug_live = FALSE,
-  skip_if_already_run = FALSE,
+  force_rerun = "all",
+  ignore_old_stage_output = NULL,
   ...
 )
 }
@@ -29,6 +30,22 @@ run(
   This folder is created if it doesn't exist.}
 }}
 
+\item{data_raw}{dataframe. Contains raw data to be processed by \code{preprocess} to create \code{data_mod}.}
+
+\item{preprocess, explore, fit, extract, display, validate}{functions or \code{NULL}. Functions
+run in the order specified, passing data_raw, data_mod and p_dots from one to the other. Some functions
+expect extra output.}
+
+\item{debug_live}{character vector or \code{FALSE}. Functions provided to \code{run}
+that at least partially match characters in \code{debug_live} at the start are run in \code{debugonce}.}
+
+\item{force_rerun}{logical.
+If \code{TRUE}, then the pipeline
+is rerun even if \code{file.path(dir_proj, "output.html")} exists. 
+Default is \code{TRUE}.}
+
+\item{...}{Named arguments passed onto all functions (preprocess to validate).}
+
 \item{dir_proj_empty}{\code{logical}. If \code{TRUE}, then the project directory
 is emptied before any results are saved. Default is \code{FALSE}.
 TODO: Wrap each of the *_fn functions so that whatever they return is saved to the
@@ -38,21 +55,6 @@ TODO: Ensure that functions are not run in global environment but run in own env
 if simply ensuring that they're not run in global environment, then add the function
 to save object to global environment if need be, and then delete it upon function
 exit.}
-
-\item{data_raw}{dataframe. Contains raw data to be processed by \code{preprocess_fn} to create \code{data_mod}.}
-
-\item{preprocess_fn, plot_exp_fn, fit_fn, get_fit_stats_fn, plot_fit_fn, plot_val_fn}{functions or \code{NULL}. Functions
-run in the order specified, passing data_raw, data_mod and params_dots from one to the other. Some functions
-expect extra output.}
-
-\item{debug_live}{character vector or \code{FALSE}. Functions provided to \code{run}
-that at least partially match characters in \code{debug_live} at the start are run in \code{debugonce}.}
-
-\item{skip_if_already_run}{logical. If \code{TRUE} and the project directory 
-exists already,, then the pipeline is 
-not run. Default is \code{FALSE}.}
-
-\item{...}{Named arguments passed onto all functions (preprocess_fn to plot_val_fn).}
 }
 \description{
 Takes arguments that specify the running of the key steps in running a GAMLSS pipeline:

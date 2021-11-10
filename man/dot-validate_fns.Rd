@@ -15,7 +15,7 @@ Default is \code{NULL}.}
 }
 \description{
 Each function supplied to \code{run} must have certain parameters.
-They alaways include \code{params_dots}.
+They alaways include \code{p_dots}.
 }
 \examples{
 env_curr <- environment()

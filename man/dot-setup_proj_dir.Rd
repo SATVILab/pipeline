@@ -4,7 +4,7 @@
 \alias{.setup_proj_dir}
 \title{Set up project directory}
 \usage{
-.setup_proj_dir(dir_proj, dir_proj_empty, params_dots)
+.setup_proj_dir(dir_proj, dir_proj_empty, p_dots)
 }
 \arguments{
 \item{dir_proj}{\code{character} or \code{function}.
@@ -26,7 +26,7 @@ if simply ensuring that they're not run in global environment, then add the func
 to save object to global environment if need be, and then delete it upon function
 exit.}
 
-\item{params_dots}{named list. Named list returned by \code{rlang::list2} applied to
+\item{p_dots}{named list. Named list returned by \code{rlang::list2} applied to
 the ellipses of \code{run}.}
 }
 \value{
