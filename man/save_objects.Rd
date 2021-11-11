@@ -68,17 +68,24 @@ that on Windows the "Date Modified" column in Windows Explorer updates.
 \examples{
 # standard use
 dir_proj <- tempdir()
-x <- "a"; y <- "b"
+x <- "a"
+y <- "b"
 save_objects(x = x, y = y, dir_proj = dir_proj, dir_sub = "test")
-for(obj in c('x', 'y')) print(file.exists(file.path(dir_proj, "test",
-                                                    paste0(obj, ".rds"))))
+for (obj in c("x", "y")) {
+  print(file.exists(file.path(
+    dir_proj, "test",
+    paste0(obj, ".rds")
+  )))
+}
 readRDS(file.path(dir_proj, "test", "x.rds"))
 readRDS(file.path(dir_proj, "test", "y.rds"))
 
 # ensure all objects have names
 # warning normally printed
-suppressWarnings(save_objects('a', obj_list = list('c', 100, z = 4),
-                              dir_proj = dir_proj, dir_sub = "test"))
+suppressWarnings(save_objects("a",
+  obj_list = list("c", 100, z = 4),
+  dir_proj = dir_proj, dir_sub = "test"
+))
 readRDS(file.path(dir_proj, "test", "obj_1.rds"))
 readRDS(file.path(dir_proj, "test", "obj_2.rds"))
 readRDS(file.path(dir_proj, "test", "obj_3.rds"))
@@ -87,7 +94,7 @@ readRDS(file.path(dir_proj, "test", "z.rds"))
 
 # ensure that objects have unique names
 # warning printed
-save_objects(x = 'a', x = 'b', dir_proj = dir_proj, dir_sub = "test")
+save_objects(x = "a", x = "b", dir_proj = dir_proj, dir_sub = "test")
 readRDS(file.path(dir_proj, "test", "x-uni_1.rds"))
 readRDS(file.path(dir_proj, "test", "x-uni_2.rds"))
 }

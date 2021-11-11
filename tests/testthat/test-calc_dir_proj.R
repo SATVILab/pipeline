@@ -46,7 +46,7 @@ test_that("calc_dir_proj works", {
       ),
       start = temp_dir_len + 2
     ),
-    "test_calc_dir_proj/Progressor/v_1/ProgressorC9/wins_n/none/NA/risk6"
+    "test_calc_dir_proj/Progressor/v1/ProgressorC9/wins_n/none/NA/risk6"
   )
   expect_identical(
     stringr::str_sub(
@@ -57,7 +57,7 @@ test_that("calc_dir_proj works", {
       ),
       start = temp_dir_len + 2
     ),
-    "test_calc_dir_proj/Progressor/v_1/ProgressorC9/wins_n/none/NA/risk6"
+    "test_calc_dir_proj/Progressor/v1/ProgressorC9/wins_n/none/NA/risk6"
   )
   expect_identical(
     stringr::str_sub(
@@ -68,21 +68,7 @@ test_that("calc_dir_proj works", {
       ),
       start = temp_dir_len + 2
     ),
-    "test_calc_dir_proj/v_1/v_1/ProgressorC9/wins_n/none/NA/risk6"
-  )
-  debugonce(.create_dir_proj)
-  expect_identical(
-    stringr::str_sub(
-      .create_dir_proj(
-        dir_base = dir_base,
-        iter = iter %>%
-          dplyr::mutate(var_exp = "fairy_count") %>%
-          dplyr::select(var_exp, var_exp_spline),
-        var_to_encode = c("var_exp_spline", "var_exp")
-      ),
-      start = temp_dir_len + 2
-    ),
-    "test_calc_dir_proj/v_2/v_1"
+    "test_calc_dir_proj/v1/v1/ProgressorC9/wins_n/none/NA/risk6"
   )
   expect_identical(
     stringr::str_sub(
@@ -95,9 +81,22 @@ test_that("calc_dir_proj works", {
       ),
       start = temp_dir_len + 2
     ),
-    "test_calc_dir_proj/v_2/v_1"
+    "test_calc_dir_proj/v2/v1"
   )
-  # first goes v_2/v_2, and then v_1/v_1, instead of just v_2/v_1 both times
+  expect_identical(
+    stringr::str_sub(
+      .create_dir_proj(
+        dir_base = dir_base,
+        iter = iter %>%
+          dplyr::mutate(var_exp = "fairy_count") %>%
+          dplyr::select(var_exp, var_exp_spline),
+        var_to_encode = c("var_exp_spline", "var_exp")
+      ),
+      start = temp_dir_len + 2
+    ),
+    "test_calc_dir_proj/v2/v1"
+  )
+
   expect_identical(
     stringr::str_sub(
       .create_dir_proj(
@@ -108,7 +107,7 @@ test_that("calc_dir_proj works", {
       ),
       start = temp_dir_len + 2
     ),
-    "test_calc_dir_proj/v_1/v_1"
+    "test_calc_dir_proj/v1/v1"
   )
   expect_identical(
     stringr::str_sub(
@@ -124,14 +123,9 @@ test_that("calc_dir_proj works", {
       ),
       start = temp_dir_len + 2
     ),
-    "test_calc_dir_proj/v_3/v_2"
+    "test_calc_dir_proj/v3/v2"
   )
 
-  .create_dir_proj(
-    dir_base = dir_base,
-    iter = ,
-    var_to_encode = c("var_exp_spline", "var_exp")
-  )
   var_to_encode <- "var_exp_spline"
   dir_base <- file.path(tempdir())
   expect_type(
@@ -149,6 +143,8 @@ test_that("calc_dir_proj works", {
     dir.exists(dir_out),
     TRUE
   )
+
+  if (dir.exists(dir_base)) unlink(dir_base, recursive = TRUE)
 })
 
 test_that(".create_text_ref works", {
@@ -233,20 +229,38 @@ test_that(".create_text_ref works", {
     .create_text_ref(iter$var_dep),
     "risk6"
   )
-  expect_error(
-    .create_text_ref("a/c")
+  expect_identical(
+    suppressWarnings(.create_text_ref("a/c")),
+    "ac"
   )
-  expect_error(
-    .create_text_ref("a//c")
+  expect_identical(
+    suppressWarnings(.create_text_ref("a//c")),
+    "ac"
   )
-  expect_error(
-    .create_text_ref("a\\c")
+  expect_identical(
+    suppressWarnings(.create_text_ref("a\\c")),
+    "ac"
   )
-  expect_error(
-    .create_text_ref("a\\\\c")
+  expect_identical(
+    suppressWarnings(.create_text_ref("a\\c\\")),
+    "ac"
   )
-  expect_error(
+  expect_identical(
+    suppressWarnings(.create_text_ref("a\\\\c")),
+    "ac"
+  )
+  expect_identical(
+    suppressWarnings(.create_text_ref("a]\\n")),
+    "a]"
+  )
+  expect_warning(
     .create_text_ref("a]\\n")
+  )
+  expect_warning(
+    .create_text_ref("\\\\")
+  )
+  expect_warning(
+    .create_text_ref("/")
   )
 
   iter_list <- list(
@@ -265,4 +279,6 @@ test_that(".create_text_ref works", {
     x,
     file.path(tempdir(), "ab", "12") %>% fs::path_norm()
   )
+
+  
 })

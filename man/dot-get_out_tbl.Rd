@@ -25,8 +25,6 @@ alternatively, a list that is coerced to
 a dataframe (tibble) with one row).
 Specifies arguments to specific
 model run.}
-
-\item{recursive}{}
 }
 \value{
 A tibble with one row, containing the following columns:

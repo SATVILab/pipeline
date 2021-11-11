@@ -19,7 +19,7 @@
 #' @param var_to_encode
 #' "~all~", "" or a character vector.
 #' Specifies which columns in \code{iter}
-#' should encode the levels within them by, e.g. "v_1", "v_2", "v_3", ...,
+#' should encode the levels within them by, e.g. "v1", "v2", "v3", ...,
 #' rather than using the actual values, to
 #' create the sub-directories.
 #' If \code{""}, then no variables are matched.
@@ -42,7 +42,11 @@
 #' function in \code{var_to_fn} to determine
 #' the sub-directory name.
 #' Default is \code{list()}.
-#' @return Invisible returns the project directory.
+#' @param debug logical.
+#' If \code{TRUE}, then debug statements are printed
+#' at appropriate places to assess the function.
+#' Default is \code{FALSE}.
+#' @return Returns the project directory as a character vector.
 #'
 #' @details
 #' Issues:
@@ -97,7 +101,8 @@
                              max_len = NULL,
                              var_to_encode = "",
                              var_to_fn = list(),
-                             debug = FALSE) {
+                             debug = FALSE,
+                             save_cn_and_encoding_in_dir = TRUE) {
   max_len <- ifelse(
     is.null(max_len) && grepl("windows", tolower(sessionInfo()$running)),
     256,
@@ -190,6 +195,7 @@
         elem = val,
         max_len = Inf
       )
+
       if (length(ind_encoding) == 1) {
         if (debug) print("ind_encoding activated")
         long_to_short_var <- long_to_short_list_var[[ind_encoding]]
@@ -209,12 +215,12 @@
           if (debug) print("long_vec")
           if (debug) print(long_vec)
           if (length(long_vec) == 0) {
-            if (debug) print("long_vec emptyd")
-            long_to_short_var <- setNames("v_1", dir_sub_orig)
+            if (debug) print("long_vec empty")
+            long_to_short_var <- setNames("v1", dir_sub_orig)
             if (debug) print("long_to_short_var created")
             if (debug) print(long_to_short_var)
 
-            dir_sub <- "v_1"
+            dir_sub <- "v1"
             if (debug) print("dir_sub")
             if (debug) print(dir_sub)
           } else {
@@ -227,7 +233,7 @@
             if (debug) print(last_name)
             last_val <- stringr::str_split(
               last_name,
-              pattern = "^v_"
+              pattern = "^v"
             )[[1]][2] %>%
               as.numeric()
             if (debug) print("last_val")
@@ -235,12 +241,12 @@
 
             if (debug) print("long_to_short_var")
             if (debug) print(long_to_short_var)
-            dir_sub <- paste0("v_", last_val + 1)
+            dir_sub <- paste0("v", last_val + 1)
             if (debug) print("dir_sub")
             if (debug) print(dir_sub)
             long_to_short_var <- c(
               long_to_short_var,
-              setNames(paste0("v_", last_val + 1), dir_sub_orig)
+              setNames(paste0("v", last_val + 1), dir_sub_orig)
             )
           }
           long_to_short_list_var[[ind_encoding]] <- long_to_short_var
@@ -254,12 +260,32 @@
       } else {
         dir_sub <- dir_sub_orig
       }
-
-      dir_proj <- file.path(
-        dir_proj,
-        dir_sub
-      )
     }
+    if (save_cn_and_encoding_in_dir) {
+      if (nm %in% names(long_to_short_list_var)) {
+        out_tbl <- data.frame(
+          orig = names(long_to_short_var),
+          dir_sub = long_to_short_var
+        )
+        write.table(
+          x = out_tbl,
+          file = file.path(dir_proj, paste0(nm, ".txt")),
+          append = FALSE
+        )
+      } else {
+        write.table(
+          x = "",
+          file = file.path(dir_proj, paste0(nm, ".txt")),
+          append = FALSE
+        )
+      }
+
+    }
+    dir_proj <- file.path(
+      dir_proj,
+      dir_sub
+    )
+    if (!dir.exists(dir_proj)) dir.create(dir_proj, recursive = TRUE)
   }
 
   saveRDS(
@@ -356,12 +382,14 @@
   if (stringr::str_length(out) > max_len) {
     stop(paste0("Use a name for directory entry as ", out, " is longer than ", max_len, " characters")) # nolint
   }
+  if (grepl("\\\\n|\\\\r|\\\\t|\\\\e|\\\\f", out)) {
+    warning(paste0("removed special characters from dir_sub: ", out))
+    out <- gsub("\\\\n|\\\\r|\\\\t|\\\\e|\\\\f", "", out)
+  }
   if (grepl("\\\\|/", out)) {
-    stop(paste0("Cannot use a directory divider, i.e. \\\\ or /, to name directory: ", out)) # nolint
+    warning(paste0("removed directory-creating characters from dir_sub: ", out))
+    out <- gsub("\\\\", "", out)
+    out <- gsub("/", "", out)
   }
-  if (grepl("\\n|\\r|\\t|\\e|\\f", out)) {
-    stop(paste0("Cannot use a back slash to name directories: ", out)) # nolint
-  }
-
   out
 }

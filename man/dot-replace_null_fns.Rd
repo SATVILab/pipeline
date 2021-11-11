@@ -18,9 +18,12 @@ have empty arguments as specified.
 }
 \examples{
 env_curr <- environment()
-fn1 <- function(x) x; fn2 <- function(x = 2) y; fn3 <- NULL
-expected_params <- list(fn1 = 'x', fn2 = 'y', fn3 = 'x')
+fn1 <- function(x) x
+fn2 <- function(x = 2) y
+fn3 <- NULL
+expected_params <- list(fn1 = "x", fn2 = "y", fn3 = "x")
 analysispipeline:::.replace_null_fns(env = env_curr, expected_params = expected_params)
 fn3 # replaced to have a function with arguments as specified by expected_params
-fn2; fn1 # no change in either
+fn2
+fn1 # no change in either
 }

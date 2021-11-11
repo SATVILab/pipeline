@@ -4,7 +4,15 @@
 \alias{.create_dir_proj}
 \title{Create a project directory}
 \usage{
-.create_dir_proj(dir_base = here::here(), iter = NULL, max_len = NULL)
+.create_dir_proj(
+  dir_base = here::here(),
+  iter = NULL,
+  max_len = NULL,
+  var_to_encode = "",
+  var_to_fn = list(),
+  debug = FALSE,
+  save_cn_and_encoding_in_dir = TRUE
+)
 }
 \arguments{
 \item{dir_base}{character.
@@ -25,12 +33,58 @@ If \code{NULL}, then is is set to 256
 if the operating system is Windows and
 1e3 otherwise.
 Default is \code{NULL}.}
+
+\item{var_to_encode}{"~all~", "" or a character vector.
+Specifies which columns in \code{iter}
+should encode the levels within them by, e.g. "v1", "v2", "v3", ...,
+rather than using the actual values, to
+create the sub-directories.
+If \code{""}, then no variables are matched.
+If \code{"~all~"}, then all variables are encoded.
+#' If some character vector, then only those columns in
+\code{iter} with name matching an elemented in
+\code{var_to_encode} are matched.
+Default is \code{""}.}
+
+\item{var_to_fn}{A named list, with each element a function
+The first argument to the function is the value
+and the second the column name. For example,
+if \code{iter <- data.frame(x = 1)}, then \code{1}
+is passed to the first argument and \code{"x"}
+to the second.
+The output of this function should be a character vector
+of length 1.
+Columns in \code{var_to_fn} matching a name in
+\code{var_to_fn} use the corresponding
+function in \code{var_to_fn} to determine
+the sub-directory name.
+Default is \code{list()}.}
+
+\item{debug}{logical.
+If \code{TRUE}, then debug statements are printed
+at appropriate places to assess the function.
+Default is \code{FALSE}.}
 }
 \value{
-Invisible returns the project directory.
+Returns the project directory as a character vector.
 }
 \description{
 Create a project directory
+}
+\details{
+Issues:
+- What happens if there is parallel computing and you're encoding
+variables?
+  - In that case, possibly best to create a map initially using
+single-threading (i.e. not running the pipeline) and then run the pipeline.
+  - Another option (if you are allowed long enough directories) would be
+  to create a unique label initially, and then replace it once the entire run
+  is complete.
+    - This would involve quite a lot of copying, though.
+    - Perhaps results could be saved to a temporary directory first,
+      and then changed out.
+  - Unless your data processing is really heavy (and why should it be?),
+  that seems reasonable to me.
 }
 \examples{
 .create_dir_proj(
@@ -42,27 +96,27 @@ Create a project directory
   )
 )
 
- iter <- structure(
-   list(
-     var_exp = "Progressor",
-     var_exp_spline = list(
-       `tc~soma~C9` = list(fn = "ns", params = list(df = 2))
-     ),
-     var_int = list(
-       c("Progressor", "C9")
-     ),
-     wins = "wins_n",
-     var_conf = list(
-       "none"
-     ),
-     ttb_max = NA_real_,
-     var_dep = "risk6"
-   ),
-   row.names = c(
-     NA,
-     -1L
-   ),
-   class = c("tbl_df", "tbl", "data.frame")
- )
+iter <- structure(
+  list(
+    var_exp = "Progressor",
+    var_exp_spline = list(
+      `tc~soma~C9` = list(fn = "ns", params = list(df = 2))
+    ),
+    var_int = list(
+      c("Progressor", "C9")
+    ),
+    wins = "wins_n",
+    var_conf = list(
+      "none"
+    ),
+    ttb_max = NA_real_,
+    var_dep = "risk6"
+  ),
+  row.names = c(
+    NA,
+    -1L
+  ),
+  class = c("tbl_df", "tbl", "data.frame")
+)
 .create_dir_proj(dir_base = tempdir(), iter = iter)
 }

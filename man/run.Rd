@@ -41,7 +41,7 @@ that at least partially match characters in \code{debug_live} at the start are r
 
 \item{force_rerun}{logical.
 If \code{TRUE}, then the pipeline
-is rerun even if \code{file.path(dir_proj, "output.html")} exists. 
+is rerun even if \code{file.path(dir_proj, "output.html")} exists.
 Default is \code{TRUE}.}
 
 \item{...}{Named arguments passed onto all functions (preprocess to validate).}

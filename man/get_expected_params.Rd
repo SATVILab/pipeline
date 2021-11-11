@@ -7,5 +7,6 @@
 get_expected_params()
 }
 \description{
-Print the names of each function along with the respective expected parameters.
+Print the names of each function
+along with the respective expected parameters.
 }

@@ -19,14 +19,19 @@ They alaways include \code{p_dots}.
 }
 \examples{
 env_curr <- environment()
-fn1 <- function(x) x; fn2 <- function(x) y
-expected_params <- list(fn1 = 'x', fn2 = 'y')
+fn1 <- function(x) x
+fn2 <- function(x) y
+expected_params <- list(fn1 = "x", fn2 = "y")
 # error
-testthat::expect_error(analysispipeline:::.validate_fns(env = env_curr,
-                                 expected_params = expected_params))
+testthat::expect_error(analysispipeline:::.validate_fns(
+  env = env_curr,
+  expected_params = expected_params
+))
 
 # no error given if fn is NULL
 fn2 <- NULL
-analysispipeline:::.validate_fns(env = env_curr,
-                                 expected_params = expected_params)
+analysispipeline:::.validate_fns(
+  env = env_curr,
+  expected_params = expected_params
+)
 }

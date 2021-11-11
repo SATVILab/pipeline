@@ -26,13 +26,17 @@ or else the object is not named (e.g \code{c(1)}) above)
 in which case the
 }
 \examples{
-.create_text_ref_from_elem(c("a" = "b"))
-.create_text_ref_from_elem(c("b"))
-.create_text_ref_from_elem(list("a" = "b"))
-.create_text_ref_from_elem(list("b"))
-.create_text_ref_from_elem(list("a" = function(x) x))
+.create_text_ref(c("a" = "b"))
+.create_text_ref(c("b"))
+.create_text_ref(list("a" = "b"))
+.create_text_ref(list("b"))
+.create_text_ref(list("a" = function(x) x))
 # will create an error if a function is passed not
 # in a named list
-try(.create_text_ref_from_elem(list(function(x) x)))
-# w
+try(.create_text_ref(list(function(x) x)))
+# it will automatically "lift up" elements
+# that are lower down:r
+.create_text_ref(list(list("a")))
+.create_text_ref(list(list("a", "b")))
+.create_text_ref(list(list("a", "b", function(x) x)))
 }
