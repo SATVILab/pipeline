@@ -65,5 +65,4 @@ test_that(".get_out_tbl works", {
     nrow(out_tbl),
     1L
   )
-
 })

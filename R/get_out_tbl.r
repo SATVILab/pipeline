@@ -28,7 +28,6 @@
 #'     to files in specified sub-directories),
 #' and all the columns from \code{iter}, specifying the model setup.
 .get_out_tbl <- function(dir_proj, dir_sub = NULL, iter = NULL) {
-
   out_tbl <- tibble::tibble(
     path_proj = stringr::str_remove(
       dir_proj, paste0(here::here(), "/")
@@ -50,8 +49,7 @@
     dplyr::mutate(fn = list(fn_vec))
 
   if (!is.null(iter)) {
-    out_tbl <- switch(
-      class(iter)[1],
+    out_tbl <- switch(class(iter)[1],
       "list" = out_tbl %>%
         dplyr::bind_cols(
           iter %>%

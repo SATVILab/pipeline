@@ -25,4 +25,4 @@
 open_folder <- function(path = rstudioapi::getActiveProject, ...) invisible(rstudioapi::selectFile(path = path, ...))
 
 #' @rdname open_folder
-open_dir <- function(path = rstudioapi::getActiveProject,...) invisible(rstudioapi::selectFile(path = path, ...))
+open_dir <- function(path = rstudioapi::getActiveProject, ...) invisible(rstudioapi::selectFile(path = path, ...))

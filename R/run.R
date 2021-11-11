@@ -39,7 +39,7 @@
 #' @param ... Named arguments passed onto all functions (preprocess to validate).
 #' @param force_rerun logical.
 #' If \code{TRUE}, then the pipeline
-#' is rerun even if \code{file.path(dir_proj, "output.html")} exists. 
+#' is rerun even if \code{file.path(dir_proj, "output.html")} exists.
 #' Default is \code{TRUE}.
 #' @export
 run <- function(dir_proj,
@@ -55,52 +55,53 @@ run <- function(dir_proj,
                 force_rerun = "all",
                 ignore_old_stage_output = NULL,
                 # what is the purpose of this?
-                # well, let's say you've re-written the fit function, 
-                # and you want to rerun it. 
-                ...){
-  
+                # well, let's say you've re-written the fit function,
+                # and you want to rerun it.
+                ...) {
   message(dir_proj)
 
   # ====================================
   # Preparation
   # ====================================
-  
+
   fn_list <- list(
-    "preprocess" = preprocess, 
-    "explore" = explore, 
-    "fit" = fit, 
-    "validate" = validate, 
-    "extract" = extract, 
+    "preprocess" = preprocess,
+    "explore" = explore,
+    "fit" = fit,
+    "validate" = validate,
+    "extract" = extract,
     "display" = display
   )
-  
-  
+
+
   stage_vec <- c(
     "preprocess", "explore", "fit",
     "validate", "extract", "display"
   )
   stage_vec_pattern <- paste0("^", substr(stage_vec, start = 1, stop = 3))
-  
-  if (!all(grepl(paste0("^all$|^none?$|", 
-                        paste0(stage_vec_pattern, collapse = "|"), 
-                        collapse = ""), force_rerun))) {
+
+  if (!all(grepl(paste0("^all$|^none?$|",
+    paste0(stage_vec_pattern, collapse = "|"),
+    collapse = ""
+  ), force_rerun))) {
     stop(paste0(
-      "force_rerun  must include only ", 
-      " include elements that ", 
+      "force_rerun  must include only ",
+      " include elements that ",
       "match at least the first three letters from:\n'",
       paste0(stage_vec, collapse = "', '"),
       ", 'all' or 'none'."
-      ))
+    ))
   }
-  
+
   if (any(grepl("^all$|^none$", force_rerun)) &&
-      length(force_rerun) > 1) {
+    length(force_rerun) > 1) {
     stop(paste0(
-      "force_rerun must only have ", 
-      "'all' or 'none' ", 
-      "on their own"))
+      "force_rerun must only have ",
+      "'all' or 'none' ",
+      "on their own"
+    ))
   }
-  
+
   if (grepl("^none?$", force_rerun)) {
     if (file.exists(file.path(dir_proj, "output.html"))) {
       return(invisible(dir_proj))
@@ -111,22 +112,23 @@ run <- function(dir_proj,
     if (grepl("^all$", force_rerun)) {
       stages_to_force_vec <- stage_vec
     } else {
-      
       stages_to_force_vec <- vapply(force_rerun, function(stg) {
-        stage_vec[vapply(stage_vec_pattern,
-                         function(x) grepl(x, stg), logical(1))]
+        stage_vec[vapply(
+          stage_vec_pattern,
+          function(x) grepl(x, stg), logical(1)
+        )]
       }, character(1)) %>%
         setNames(NULL)
     }
   }
-  
+
   if (!identical(stages_to_force_vec[1], "none")) {
     stage_link_list <- list(
-      "preprocess" = stage_vec, 
-      "explore" = stage_vec[2], 
-      "fit" = stage_vec[3:6], 
-      "validate" = stage_vec[4], 
-      "extract" = stage_vec[5:6], 
+      "preprocess" = stage_vec,
+      "explore" = stage_vec[2],
+      "fit" = stage_vec[3:6],
+      "validate" = stage_vec[4],
+      "extract" = stage_vec[5:6],
       "display" = stage_vec[6]
     )
     stages_to_force_vec <- lapply(stages_to_force_vec, function(stg) {
@@ -136,20 +138,20 @@ run <- function(dir_proj,
       unique()
   }
   stages_to_run_if_needed_vec <- setdiff(stage_vec, stages_to_force_vec)
-  
+
   # get project directory, creating it if need be
   stage_to_basename_vec <- c(
     "preprocess" = "prep",
-    "explore" = "exp", 
-    "fit" = "fit", 
-    "display" = "disp", 
-    "extract" = "extr", 
+    "explore" = "exp",
+    "fit" = "fit",
+    "display" = "disp",
+    "extract" = "extr",
     "validation" = "val"
   )
   if (dir.exists(dir_proj)) {
     for (stg in stage_vec) {
-      if(stg %in% stages_to_force_vec && 
-         delete_old_run) {
+      if (stg %in% stages_to_force_vec &&
+        delete_old_run) {
         dir_stg <- file.path(dir_proj, stage_to_basename_vec[stg])
         unlink(dir_stg, recursive = TRUE)
       }
@@ -157,23 +159,31 @@ run <- function(dir_proj,
   } else {
     dir.create(dir_proj, recursive = TRUE)
   }
-  
+
   print(dir_proj)
 
   # check that data is supplied
-  if(missing(data_raw)) stop("data_raw must be supplied.")
+  if (missing(data_raw)) stop("data_raw must be supplied.")
 
   # create expected parameters
   # remember to change get_expected_params and its test when this is changed
-  expected_params <- list("preprocess" = c("data_raw", "p_dots", "dir_proj"),
-                          "explore" = c("data_raw", "data_mod", "dir_proj", "p_dots"),
-                          "fit" = c("data_mod", "p_dots", "dir_proj"),
-                          "extract" = c("data_raw", "data_mod", "dir_proj",
-                                        "p_dots", "fit_obj"),
-                          "display" = c("data_raw", "data_mod", "dir_proj",
-                                        "p_dots", "fit_obj", "fit_stats"),
-                          "validate" = c("data_raw", "data_mod", "dir_proj",
-                                            "p_dots", "fit_obj"))
+  expected_params <- list(
+    "preprocess" = c("data_raw", "p_dots", "dir_proj"),
+    "explore" = c("data_raw", "data_mod", "dir_proj", "p_dots"),
+    "fit" = c("data_mod", "p_dots", "dir_proj"),
+    "extract" = c(
+      "data_raw", "data_mod", "dir_proj",
+      "p_dots", "fit_obj"
+    ),
+    "display" = c(
+      "data_raw", "data_mod", "dir_proj",
+      "p_dots", "fit_obj", "fit_stats"
+    ),
+    "validate" = c(
+      "data_raw", "data_mod", "dir_proj",
+      "p_dots", "fit_obj"
+    )
+  )
 
   # save current environment as a variable
   # env_main <- environment()
@@ -193,20 +203,23 @@ run <- function(dir_proj,
     unlink(dir_params, recursive = TRUE)
   }
   stages_to_run_vec <- vapply(
-    stage_vec, 
+    stage_vec,
     function(x) {
-      if (x %in% stages_to_force_vec) return(x)
+      if (x %in% stages_to_force_vec) {
+        return(x)
+      }
       completed_stage_indicator <- file.path(
         dir_proj, stage_to_basename_vec[x], "completed.rds"
-        )
-      ifelse(file.exists(completed_stage_indicator), 
-             "", x)
-    }, 
+      )
+      ifelse(file.exists(completed_stage_indicator),
+        "", x
+      )
+    },
     character(1)
   )
   stages_to_run_vec <- stages_to_run_vec[!stages_to_run_vec == ""] %>%
     setNames(NULL)
-  
+
   stages_to_run_vec <- stages_to_run_vec[
     vapply(stages_to_run_vec, function(stg) {
       !is.null(fn_list[[stg]])
@@ -214,69 +227,80 @@ run <- function(dir_proj,
   ]
   if (length(stages_to_run_vec) == 0) {
     message("no stages to run")
-    
+
     if (!file.exists(file.path(dir_proj, "output.html"))) {
       message("creating output.html")
       # create rmd
-      rmarkdown::render(input = system.file("extdata", "collate_output.Rmd",
-                                            package = "pipeline"),
-                        output_file = file.path(dir_proj, "output.html"),
-                        params = list(p_dots = p_dots,
-                                      dir_proj = dir_proj),
-                        quiet = TRUE)
+      rmarkdown::render(
+        input = system.file("extdata", "collate_output.Rmd",
+          package = "pipeline"
+        ),
+        output_file = file.path(dir_proj, "output.html"),
+        params = list(
+          p_dots = p_dots,
+          dir_proj = dir_proj
+        ),
+        quiet = TRUE
+      )
     }
-    
+
     message("pipeline run complete")
-    
+
     return(invisible(dir_proj))
   }
-  
+
   save_objects(
-    obj_list = fn_list[stages_to_run_vec], 
-    dir_proj = dir_proj, 
+    obj_list = fn_list[stages_to_run_vec],
+    dir_proj = dir_proj,
     dir_sub = "params"
   )
 
-  if (!all(grepl(paste0("^all$|^none?$|", 
-                        paste0(stage_vec_pattern, collapse = "|"), 
-                        collapse = ""), debug_live))) {
+  if (!all(grepl(paste0("^all$|^none?$|",
+    paste0(stage_vec_pattern, collapse = "|"),
+    collapse = ""
+  ), debug_live))) {
     stop(paste0(
-      "debug_live must include only ", 
-      " include elements that ", 
+      "debug_live must include only ",
+      " include elements that ",
       "match at least the first three letters from:\n'",
       paste0(stage_vec, collapse = "', '"),
       ", 'all' or 'none'."
     ))
   }
-  
+
   if (any(grepl("^all$|^none$", debug_live)) &&
-      length(debug_live) > 1) {
+    length(debug_live) > 1) {
     stop(paste0(
-      "debug_live must only have ", 
-      "'all' or 'none' ", 
-      "on their own"))
+      "debug_live must only have ",
+      "'all' or 'none' ",
+      "on their own"
+    ))
   }
-  
+
 
   if (grepl("^all$", debug_live)) {
     fn_to_debug_vec <- stage_vec
-  } else if(!all(grepl("^none$", debug_live))) {
+  } else if (!all(grepl("^none$", debug_live))) {
     fn_to_debug_vec <- vapply(debug_live, function(stg) {
-      stage_vec[vapply(stage_vec_pattern,
-                       function(x) grepl(x, stg), logical(1))]
-      }, character(1)) %>%
+      stage_vec[vapply(
+        stage_vec_pattern,
+        function(x) grepl(x, stg), logical(1)
+      )]
+    }, character(1)) %>%
       setNames(NULL)
-  } else fn_to_debug_vec <- NULL
+  } else {
+    fn_to_debug_vec <- NULL
+  }
 
   for (i in seq_along(fn_to_debug_vec)) {
-    if(!is.function(fn_list[[fn_to_debug_vec[i]]])) next
+    if (!is.function(fn_list[[fn_to_debug_vec[i]]])) next
     parse_text <- paste0(
       "debugonce(", fn_to_debug_vec[i], ")"
     )
     eval(parse(text = parse_text))
     parse_text <- paste0(
-      "on.exit(try(suppressWarnings(undebug(", 
-      fn_to_debug_vec[i], 
+      "on.exit(try(suppressWarnings(undebug(",
+      fn_to_debug_vec[i],
       ")), silent = TRUE), add = TRUE)"
     )
     eval(parse(text = parse_text))
@@ -285,39 +309,39 @@ run <- function(dir_proj,
   # ====================================
   # Analysis
   # ====================================
-  
+
   if (!"preprocess" %in% stages_to_run_vec) {
     data_mod <- readRDS(
       file.path(
         dir_proj,
-        stage_to_basename_vec["preprocess"], 
+        stage_to_basename_vec["preprocess"],
         "data_mod.rds"
-        )
+      )
     )
   }
   if (!"fit" %in% stages_to_run_vec) {
     fit_obj <- readRDS(
       file.path(
         dir_proj,
-        stage_to_basename_vec["fit"], 
+        stage_to_basename_vec["fit"],
         "mod_list.rds"
-        )
+      )
     )
   }
   if (!"extract" %in% stages_to_run_vec) {
     fit_stats <- readRDS(
       file.path(
         dir_proj,
-        stage_to_basename_vec["extract"], 
+        stage_to_basename_vec["extract"],
         "fit_stats.rds"
-        )
+      )
     )
   }
-  
+
   for (stg in stages_to_run_vec) {
     completion_indicator_path <- file.path(
-      dir_proj, 
-      stage_to_basename_vec[stg], 
+      dir_proj,
+      stage_to_basename_vec[stg],
       "completed.rds"
     )
     stg_to_nm_vec <- c(
@@ -330,30 +354,31 @@ run <- function(dir_proj,
     )
     nm <- stg_to_nm_vec[stg]
     dir_stg <- file.path(
-      dir_proj, 
+      dir_proj,
       stage_to_basename_vec[stg]
-      )
+    )
     unlink(
-      dir_stg, 
+      dir_stg,
       recursive = TRUE
     )
     dir.create(
-      dir_stg, 
-      recursive = TRUE)
+      dir_stg,
+      recursive = TRUE
+    )
     p_dots$dir_stg <- dir_stg
-    
+
     parse_text <- paste0(
-      nm, 
+      nm,
       " <- ",
-      stg, 
-      "(data_raw = data_raw, ", 
-      "dir_proj = dir_proj, ", 
+      stg,
+      "(data_raw = data_raw, ",
+      "dir_proj = dir_proj, ",
       "p_dots = p_dots"
     )
     if (!stg == "preprocess") {
       parse_text <- paste0(parse_text, ", data_mod = data_mod")
     }
-    
+
     if (stg %in% c("validate", "extract", "display")) {
       parse_text <- paste0(parse_text, ", fit_obj = fit_obj")
     }
@@ -362,29 +387,34 @@ run <- function(dir_proj,
     }
     parse_text <- paste0(parse_text, ")")
     eval(parse(text = parse_text))
-    
+
     if (stg == "preprocess") {
       if (!file.exists(file.path(dir_stg, "data_mod.rds"))) {
         saveRDS(data_mod, file.path(dir_stg, "data_mod.rds"))
       }
     }
-    
+
     saveRDS(TRUE, completion_indicator_path)
   }
-  
+
   try(rm("x"), silent = TRUE)
 
   # create rmd
   message("creating output.html")
   # create rmd
-  rmarkdown::render(input = system.file("extdata", "collate_output.Rmd",
-                                        package = "pipeline"),
-                    output_file = file.path(dir_proj, "output.html"),
-                    params = list(p_dots = p_dots,
-                                  dir_proj = dir_proj),
-                    quiet = TRUE)
+  rmarkdown::render(
+    input = system.file("extdata", "collate_output.Rmd",
+      package = "pipeline"
+    ),
+    output_file = file.path(dir_proj, "output.html"),
+    params = list(
+      p_dots = p_dots,
+      dir_proj = dir_proj
+    ),
+    quiet = TRUE
+  )
 
   message("pipeline run complete")
-  
+
   return(invisible(dir_proj))
 }

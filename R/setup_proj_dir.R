@@ -16,28 +16,28 @@
 #' is \code{TRUE}.
 .setup_proj_dir <- function(dir_proj,
                             dir_proj_empty,
-                            p_dots){
+                            p_dots) {
   # check that dir_proj is a character or a function.
-  if(missing(dir_proj) || !("character" %in% class(dir_proj) || base::is.function(dir_proj))){
+  if (missing(dir_proj) || !("character" %in% class(dir_proj) || base::is.function(dir_proj))) {
     stop("dir_proj should be a function or a character.")
   }
 
   # create dir_proj if need be
-  if(base::is.function(dir_proj)){
-    if(missing(p_dots)) stop("p_dots must be supplied when dir_proj is a function.")
-    if(is.null(formals(dir_proj)) || length(formals(dir_proj)) != 1) stop("dir_proj must accept one argument if it's a function.")
+  if (base::is.function(dir_proj)) {
+    if (missing(p_dots)) stop("p_dots must be supplied when dir_proj is a function.")
+    if (is.null(formals(dir_proj)) || length(formals(dir_proj)) != 1) stop("dir_proj must accept one argument if it's a function.")
     dir_proj <- dir_proj(p_dots)
-    if(!is.character(dir_proj)) stop("output of dir_proj function must be a character")
+    if (!is.character(dir_proj)) stop("output of dir_proj function must be a character")
   }
 
   # ensure that path is normalised
   dir_proj <- suppressWarnings(suppressMessages(normalizePath(dir_proj)))
 
   # empty dir_proj if it exists and dir_proj_empty is TRUE
-  if(dir.exists(dir_proj) && dir_proj_empty) unlink(dir_proj, recursive = TRUE)
+  if (dir.exists(dir_proj) && dir_proj_empty) unlink(dir_proj, recursive = TRUE)
 
   # creat dir_proj if it doesn't exist
-  if(!dir.exists(dir_proj)) dir.create(dir_proj, recursive = TRUE)
+  if (!dir.exists(dir_proj)) dir.create(dir_proj, recursive = TRUE)
 
   # return path as character
   dir_proj
