@@ -16,8 +16,48 @@
 #' if the operating system is Windows and
 #' 1e3 otherwise.
 #' Default is \code{NULL}.
-#'
+#' @param var_to_encode
+#' "~all~", "" or a character vector.
+#' Specifies which columns in \code{iter}
+#' should encode the levels within them by, e.g. "v_1", "v_2", "v_3", ...,
+#' rather than using the actual values, to
+#' create the sub-directories.
+#' If \code{""}, then no variables are matched.
+#' If \code{"~all~"}, then all variables are encoded.
+#' #' If some character vector, then only those columns in
+#' \code{iter} with name matching an elemented in
+#' \code{var_to_encode} are matched.
+#' Default is \code{""}.
+#' @param var_to_fn
+#' A named list, with each element a function
+#' The first argument to the function is the value
+#' and the second the column name. For example,
+#' if \code{iter <- data.frame(x = 1)}, then \code{1}
+#' is passed to the first argument and \code{"x"}
+#' to the second.
+#' The output of this function should be a character vector
+#' of length 1.
+#' Columns in \code{var_to_fn} matching a name in
+#' \code{var_to_fn} use the corresponding
+#' function in \code{var_to_fn} to determine
+#' the sub-directory name.
+#' Default is \code{list()}.
 #' @return Invisible returns the project directory.
+#'
+#' @details
+#' Issues:
+#' - What happens if there is parallel computing and you're encoding
+#' variables?
+#'   - In that case, possibly best to create a map initially using
+#' single-threading (i.e. not running the pipeline) and then run the pipeline.
+#'   - Another option (if you are allowed long enough directories) would be
+#'   to create a unique label initially, and then replace it once the entire run
+#'   is complete.
+#'     - This would involve quite a lot of copying, though.
+#'     - Perhaps results could be saved to a temporary directory first,
+#'       and then changed out.
+#'   - Unless your data processing is really heavy (and why should it be?),
+#'   that seems reasonable to me.
 #'
 #' @examples
 #' .create_dir_proj(
@@ -54,19 +94,179 @@
 #' .create_dir_proj(dir_base = tempdir(), iter = iter)
 .create_dir_proj <- function(dir_base = here::here(),
                              iter = NULL,
-                             max_len = NULL) {
+                             max_len = NULL,
+                             var_to_encode = "",
+                             var_to_fn = list(),
+                             debug = FALSE) {
   max_len <- ifelse(
-    grepl("windows", tolower(sessionInfo()$running)),
+    is.null(max_len) && grepl("windows", tolower(sessionInfo()$running)),
     256,
     1e3
   )
   dir_proj <- file.path(dir_base)
-  for (x in iter) {
-    dir_proj <- file.path(
-      dir_proj,
-      .create_text_ref(x, max_len = max_len)
+  path_long_to_short_list_var <- file.path(
+    dir_base, "long_to_short_list_var.rds"
+  )
+  if (!dir.exists(dir_base)) dir.create(dir_base, recursive = TRUE)
+  if (!identical(stringr::str_trim(var_to_encode), "")) {
+    if (identical(stringr::str_trim(var_to_encode), "~all~")) {
+      var_to_encode <- colnames(iter)
+    }
+
+    if (file.exists(path_long_to_short_list_var)) {
+      long_to_short_list_var <- readRDS(path_long_to_short_list_var)
+
+      # remove variables not slated for encoding
+      # from long_to_short_list_var so that
+      # we can keep logn_to_short_list_var
+      # as also a definitive list of variables to encode
+      var_to_encode_missing <- setdiff(
+        names(long_to_short_list_var),
+        var_to_encode
+      )
+      if (length(var_to_encode_missing) > 0) {
+        var_to_encode_missing_ind <- which(
+          names(long_to_short_list_var) %in%
+            var_to_encode_missing
+        )
+        long_to_short_list_var <- long_to_short_list_var[
+          -var_to_encode_missing_ind
+        ]
+      }
+    } else {
+      long_to_short_list_var <- list()
+    }
+
+    var_to_encode_add <- setdiff(
+      var_to_encode,
+      c(
+        names(long_to_short_list_var),
+        names(var_to_fn)
+      )
     )
+
+    if (length(var_to_encode_add) > 0) {
+      long_to_short_list_var_add <- purrr::map(
+        var_to_encode_add,
+        function(x) {
+          character(0L)
+        }
+      ) %>%
+        setNames(var_to_encode_add)
+      long_to_short_list_var <- long_to_short_list_var %>%
+        append(long_to_short_list_var_add)
+    }
+  } else {
+    long_to_short_list_var <- list()
   }
+
+  for (i in seq_along(iter)) {
+    nm <- names(iter)[[i]]
+    ind_fn <- which(vapply(
+      names(var_to_fn), function(x) identical(x, nm), logical(1)
+    ))
+    val <- iter[[i]]
+    if (debug) print("val")
+    if (debug) print(val)
+    if (length(ind_fn) > 1) {
+      stop(paste0("more than one list name matches ", nm))
+    }
+    ind_encoding <- which(vapply(
+      names(long_to_short_list_var), function(x) identical(x, nm), logical(1)
+    ))
+    if (debug) print("i")
+    if (debug) print(i)
+    if (debug) print("nm")
+    if (debug) print(nm)
+    if (debug) print("ind_encoding")
+    if (debug) print(ind_encoding)
+    if (length(ind_encoding) > 1) {
+      stop(paste0("more than one list name matches ", nm))
+    }
+    if (length(ind_fn) == 1) {
+      dir_sub <- var_to_fn[[ind_fn]](val, nm)
+    } else {
+      dir_sub_orig <- .create_text_ref(
+        elem = val,
+        max_len = Inf
+      )
+      if (length(ind_encoding) == 1) {
+        if (debug) print("ind_encoding activated")
+        long_to_short_var <- long_to_short_list_var[[ind_encoding]]
+        if (debug) print("long_to_short_var")
+        if (debug) print(long_to_short_var)
+        if (dir_sub_orig %in% names(long_to_short_var)) {
+          if (debug) print("dir_sub_orig is in names(long_to_short_var)")
+          if (debug) print("dir_sub_orig")
+          if (debug) print(dir_sub_orig)
+          dir_sub <- long_to_short_var[[dir_sub_orig]]
+          if (debug) print("dir_sub")
+          if (debug) print(dir_sub)
+        } else {
+          if (debug) print("dir_sub_orig NOT in names(long_to_short_var)")
+          if (debug) print("dir_sub_orig")
+          long_vec <- names(long_to_short_var)
+          if (debug) print("long_vec")
+          if (debug) print(long_vec)
+          if (length(long_vec) == 0) {
+            if (debug) print("long_vec emptyd")
+            long_to_short_var <- setNames("v_1", dir_sub_orig)
+            if (debug) print("long_to_short_var created")
+            if (debug) print(long_to_short_var)
+
+            dir_sub <- "v_1"
+            if (debug) print("dir_sub")
+            if (debug) print(dir_sub)
+          } else {
+            if (debug) print("long_vec has length >= 1")
+            short_vec <- setNames(long_to_short_var, NULL)
+            if (debug) print("short_vec")
+            if (debug) print(short_vec)
+            last_name <- short_vec[length(short_vec)]
+            if (debug) print("last_name")
+            if (debug) print(last_name)
+            last_val <- stringr::str_split(
+              last_name,
+              pattern = "^v_"
+            )[[1]][2] %>%
+              as.numeric()
+            if (debug) print("last_val")
+            if (debug) print(last_val)
+
+            if (debug) print("long_to_short_var")
+            if (debug) print(long_to_short_var)
+            dir_sub <- paste0("v_", last_val + 1)
+            if (debug) print("dir_sub")
+            if (debug) print(dir_sub)
+            long_to_short_var <- c(
+              long_to_short_var,
+              setNames(paste0("v_", last_val + 1), dir_sub_orig)
+            )
+          }
+          long_to_short_list_var[[ind_encoding]] <- long_to_short_var
+          if (debug) print("long_to_short_list_var")
+          if (debug) print(long_to_short_list_var)
+          saveRDS(
+            object = long_to_short_list_var,
+            file = path_long_to_short_list_var
+          )
+        }
+      } else {
+        dir_sub <- dir_sub_orig
+      }
+
+      dir_proj <- file.path(
+        dir_proj,
+        dir_sub
+      )
+    }
+  }
+
+  saveRDS(
+    object = long_to_short_list_var,
+    file = path_long_to_short_list_var
+  )
+
   dir_proj <- fs::path_norm(dir_proj)
   if (stringr::str_length(dir_proj) > max_len) {
     stop(paste0(
@@ -81,7 +281,7 @@
       recursive = TRUE
     )
   }
-  invisible(dir_proj)
+  dir_proj
 }
 
 #' @title Create directory addition
@@ -119,8 +319,7 @@
 #' .create_text_ref(list(list("a", "b", function(x) x)))
 .create_text_ref <- function(elem,
                              max_len = 40,
-                             collapse = ""
-) {
+                             collapse = "") {
   if (is.null(names(elem))) {
     need_name <- purrr::map_lgl(elem, function(x) {
       typeof(x) %in% c(
@@ -163,5 +362,6 @@
   if (grepl("\\n|\\r|\\t|\\e|\\f", out)) {
     stop(paste0("Cannot use a back slash to name directories: ", out)) # nolint
   }
+
   out
 }

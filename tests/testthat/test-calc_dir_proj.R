@@ -21,6 +21,118 @@ test_that("calc_dir_proj works", {
     ),
     class = c("tbl_df", "tbl", "data.frame")
   )
+  dir_base <- file.path(tempdir(), "test_calc_dir_proj")
+  if (!dir.exists(dir_base)) dir.create(dir_base, recursive = TRUE)
+  if (dir.exists(dir_base)) unlink(dir_base, recursive = TRUE)
+  temp_dir_len <- stringr::str_length(tempdir())
+  expect_identical(
+    stringr::str_sub(
+      .create_dir_proj(
+        dir_base = dir_base,
+        iter = iter,
+        var_to_encode = "~none~"
+      ),
+      start = temp_dir_len + 2
+    ),
+    "test_calc_dir_proj/Progressor/tc~soma~C9/ProgressorC9/wins_n/none/NA/risk6"
+  )
+
+  expect_identical(
+    stringr::str_sub(
+      .create_dir_proj(
+        dir_base = dir_base,
+        iter = iter,
+        var_to_encode = c("var_exp_spline")
+      ),
+      start = temp_dir_len + 2
+    ),
+    "test_calc_dir_proj/Progressor/v_1/ProgressorC9/wins_n/none/NA/risk6"
+  )
+  expect_identical(
+    stringr::str_sub(
+      .create_dir_proj(
+        dir_base = dir_base,
+        iter = iter,
+        var_to_encode = c("var_exp_spline")
+      ),
+      start = temp_dir_len + 2
+    ),
+    "test_calc_dir_proj/Progressor/v_1/ProgressorC9/wins_n/none/NA/risk6"
+  )
+  expect_identical(
+    stringr::str_sub(
+      .create_dir_proj(
+        dir_base = dir_base,
+        iter = iter,
+        var_to_encode = c("var_exp_spline", "var_exp")
+      ),
+      start = temp_dir_len + 2
+    ),
+    "test_calc_dir_proj/v_1/v_1/ProgressorC9/wins_n/none/NA/risk6"
+  )
+  debugonce(.create_dir_proj)
+  expect_identical(
+    stringr::str_sub(
+      .create_dir_proj(
+        dir_base = dir_base,
+        iter = iter %>%
+          dplyr::mutate(var_exp = "fairy_count") %>%
+          dplyr::select(var_exp, var_exp_spline),
+        var_to_encode = c("var_exp_spline", "var_exp")
+      ),
+      start = temp_dir_len + 2
+    ),
+    "test_calc_dir_proj/v_2/v_1"
+  )
+  expect_identical(
+    stringr::str_sub(
+      .create_dir_proj(
+        dir_base = dir_base,
+        iter = iter %>%
+          dplyr::mutate(var_exp = "fairy_count") %>%
+          dplyr::select(var_exp, var_exp_spline),
+        var_to_encode = c("var_exp_spline", "var_exp")
+      ),
+      start = temp_dir_len + 2
+    ),
+    "test_calc_dir_proj/v_2/v_1"
+  )
+  # first goes v_2/v_2, and then v_1/v_1, instead of just v_2/v_1 both times
+  expect_identical(
+    stringr::str_sub(
+      .create_dir_proj(
+        dir_base = dir_base,
+        iter = iter %>%
+          dplyr::select(var_exp, var_exp_spline),
+        var_to_encode = c("var_exp_spline", "var_exp")
+      ),
+      start = temp_dir_len + 2
+    ),
+    "test_calc_dir_proj/v_1/v_1"
+  )
+  expect_identical(
+    stringr::str_sub(
+      .create_dir_proj(
+        dir_base = dir_base,
+        iter = iter %>%
+          dplyr::select(var_exp, var_exp_spline) %>%
+          dplyr::mutate(
+            var_exp_spline = "~~~",
+            var_exp = "1"
+          ),
+        var_to_encode = c("var_exp_spline", "var_exp")
+      ),
+      start = temp_dir_len + 2
+    ),
+    "test_calc_dir_proj/v_3/v_2"
+  )
+
+  .create_dir_proj(
+    dir_base = dir_base,
+    iter = ,
+    var_to_encode = c("var_exp_spline", "var_exp")
+  )
+  var_to_encode <- "var_exp_spline"
   dir_base <- file.path(tempdir())
   expect_type(
     .create_dir_proj(dir_base = dir_base),
@@ -37,7 +149,6 @@ test_that("calc_dir_proj works", {
     dir.exists(dir_out),
     TRUE
   )
-
 })
 
 test_that(".create_text_ref works", {
