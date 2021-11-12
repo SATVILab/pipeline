@@ -279,6 +279,4 @@ test_that(".create_text_ref works", {
     x,
     file.path(tempdir(), "ab", "12") %>% fs::path_norm()
   )
-
-  
 })

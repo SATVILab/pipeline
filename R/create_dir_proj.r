@@ -102,7 +102,8 @@
                              var_to_encode = "",
                              var_to_fn = list(),
                              debug = FALSE,
-                             save_cn_and_encoding_in_dir = TRUE) {
+                             save_cn_and_encoding_in_dir = TRUE,
+                             delete_pre_existing = FALSE) {
   max_len <- ifelse(
     is.null(max_len) && grepl("windows", tolower(sessionInfo()$running)),
     256,
@@ -279,7 +280,6 @@
           append = FALSE
         )
       }
-
     }
     dir_proj <- file.path(
       dir_proj,
@@ -300,6 +300,9 @@
       " has length ",
       stringr::str_length(dir_proj)
     ))
+  }
+  if (dir.exists(dir_proj) && delete_pre_existing) {
+    unlink(dir_proj, recursive = TRUE)
   }
   if (!dir.exists(dir_proj)) {
     dir.create(

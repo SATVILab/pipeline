@@ -27,7 +27,10 @@
 #' fn (a column where each element is a list containing all the relative paths
 #'     to files in specified sub-directories),
 #' and all the columns from \code{iter}, specifying the model setup.
-.get_out_tbl <- function(dir_proj, dir_sub = NULL, iter = NULL) {
+.get_out_tbl <- function(dir_base,
+                         dir_proj,
+                         dir_sub = NULL,
+                         iter = NULL) {
   out_tbl <- tibble::tibble(
     path_proj = stringr::str_remove(
       dir_proj, paste0(here::here(), "/")
@@ -48,22 +51,23 @@
   out_tbl <- out_tbl %>%
     dplyr::mutate(fn = list(fn_vec))
 
-  if (!is.null(iter)) {
-    out_tbl <- switch(class(iter)[1],
-      "list" = out_tbl %>%
-        dplyr::bind_cols(
-          iter %>%
-            tibble::as_tibble_row()
-        ),
-      "tbl_df" = , # nolint
-      "data.frame" = {
-        if (nrow(iter) != 1L) {
-          stop("If iter is a dataframe, then it must have one row exactly")
-        }
-        out_tbl %>%
-          dplyr::bind_cols(iter)
-      }
+  out_tbl <- out_tbl %>%
+    dplyr::mutate(
+      iter = list(iter)
     )
+  path_encoding <- file.path(
+    dir_base, "long_to_short_list_var.rds"
+  )
+  long_to_short_list_var <- switch(as.character(file.exists(path_encoding)),
+    "TRUE" = readRDS(path_encoding),
+    list()
+  )
+  for (i in seq_along(iter)) {
+    text_ref <- pipeline:::.create_text_ref(iter[[i]])
+    tbl_add <- tibble::tibble(x = text_ref)
+    colnames(tbl_add) <- colnames(iter)[i]
+    out_tbl <- out_tbl %>%
+      dplyr::bind_cols(tbl_add)
   }
 
   out_tbl

@@ -4,7 +4,7 @@
 \alias{.get_out_tbl}
 \title{Collate model output file objects and model parameters}
 \usage{
-.get_out_tbl(dir_proj, dir_sub = NULL, iter = NULL)
+.get_out_tbl(dir_base, dir_proj, dir_sub = NULL, iter = NULL)
 }
 \arguments{
 \item{dir_proj}{character.

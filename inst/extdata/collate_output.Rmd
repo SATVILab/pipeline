@@ -5,8 +5,8 @@ output:
     toc: true
     toc_depth: 3
 params:
-  p_dots: !r list()
-  dir_proj: ""
+  dir_proj:""
+  output_tbl: NULL
 ---
 
 ```{css, echo=FALSE}
@@ -22,6 +22,18 @@ body {
 
 ```{r , include = FALSE}
 knitr::opts_chunk$set(echo = FALSE)
+```
+
+```{r , results = "asis"}
+if (!is.null(params$output_tbl)) {
+  pander::pandoc.table(
+    out_tbl[, -which(colnames(out_tbl) %in% c(
+      "path_proj",
+      "iter",
+      "fn"
+    ))]
+  )
+}
 ```
 
 ```{r , results = 'asis'}

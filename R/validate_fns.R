@@ -4,9 +4,13 @@
 #' Each function supplied to \code{run} must have certain parameters.
 #' They alaways include \code{p_dots}.
 #'
-#' @param env environment. Environment in which the functions are found and to be saved.
-#' @param expected_params list. Names are names of functions to be validated and values are expected parameters.
-#' If \code{NULL}, then a default list is used. Run \code{body(analysispipeline:::.validate_fns)} to see default.
+#' @param env environment.
+#' Environment in which the functions are found and to be saved.
+#' @param expected_params list.
+#' Names are names of functions to be validated
+#' and values are expected parameters.
+#' If \code{NULL}, then a default list is used.
+#' Run \code{body(analysispipeline:::.validate_fns)} to see default.
 #' Default is \code{NULL}.
 #'
 #' @examples
