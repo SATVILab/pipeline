@@ -1,3 +1,4 @@
+#' @export
 run <- function(iter,
                 dir_base,
                 dir_var_exc = NULL,
@@ -14,11 +15,16 @@ run <- function(iter,
                 delete_old_run = TRUE,
                 debug = FALSE,
                 force_rerun = "all",
-                ignore_old_stage_output = NULL,
                 ...) {
+
   if (nrow(iter) == 0L) {
     warning("iter has no rows")
     return(invisible(tibble::tibble()))
+  }
+
+  p_dots <- list(...)
+  if (any(identical(names(p_dots), ""))) {
+    stop("All dotted arguments must be named.")
   }
 
   results_tbl_init <- purrr::map_df(
@@ -35,6 +41,7 @@ run <- function(iter,
       } else {
         data_raw_outer <- prep_data_raw(
           iter = iter_row,
+          p_dots = p_dots,
           stage = "outer"
         )
         if (nrow(data_raw_outer) == 0) {
@@ -45,7 +52,8 @@ run <- function(iter,
           message("no data, skipping")
           out_tbl <- tibble::tibble(
             dir_proj = NULL,
-            iter = list(iter_row)
+            iter = list(iter_row),
+            p_dots = p_dots
           )
           return(out_tbl)
         }
@@ -57,6 +65,7 @@ run <- function(iter,
       } else {
         iter_outer <- prep_iter(
           iter = iter_row,
+          p_dots = p_dots,
           data_raw = data_raw_outer
         )
 
@@ -69,7 +78,8 @@ run <- function(iter,
           out_tbl <- tibble::tibble(
             dir_base = dir_base,
             dir_proj = NULL,
-            iter = list(iter_outer)
+            iter = list(iter_outer),
+            p_dots = p_dots
           )
           return(out_tbl)
         }
@@ -77,7 +87,7 @@ run <- function(iter,
 
       j <- 1
       purrr::map_df(seq_len(nrow(iter_outer)), function(j) {
-        iter_inner <- iter_inner[j, ]
+        iter_inner <- iter_outer[j, ]
         print(paste0(j, " of ", nrow(iter_outer), " inner combinations"))
 
         # print iteration
@@ -88,30 +98,33 @@ run <- function(iter,
 
         ind_exc <- which(purrr::map_lgl(
           colnames(iter_inner),
-          function(x) x %in% dir_proj_var_exc
+          function(x) x %in% dir_var_exc
         ))
 
-        if (sum(ind_exc) > 1) {
-          iter_inner <- iter_inner[, -ind_exc]
+        if (length(ind_exc) > 0) {
+          iter_inner_dir <- iter_inner[, -ind_exc]
         } else {
-          iter_inner <- iter_inner
+          iter_inner_dir <- iter_inner
         }
         var_to_exc <- switch(as.character(is.null(dir_var_exc)),
           "TRUE" = "~none~",
           dir_var_exc
         )
-        var_to_encode <- switch(as.character(is.null(var_to_encode)),
+        var_to_encode <- switch(
+          as.character(is.null(dir_var_encode)),
           "TRUE" = "~none~",
-          "FALSE" = switch(var_to_encode,
-            "~all~" = ,
-            "all" = colnames(iter_inner),
-            iter_inner
+          "FALSE" = switch(
+            paste0(dir_var_encode, collapse = "", sep = ""),
+            "~all~" = , # nolint
+            "all" = colnames(iter_inner_dir),
+            dir_var_encode
           )
         )
         var_to_fn <- switch(as.character(is.null(dir_var_fn)),
           "TRUE" = list(),
           dir_var_fn
         )
+
         dir_proj <- .create_dir_proj(
           dir_base = dir_base,
           iter = iter_inner,
@@ -124,6 +137,7 @@ run <- function(iter,
         if (!is.null(prep_data_raw)) {
           data_raw_inner <- prep_data_raw(
             iter = iter_inner,
+            p_dots = p_dots,
             stage = "inner",
             data_raw = data_raw_outer
           )
@@ -145,13 +159,13 @@ run <- function(iter,
         }
 
         # set "none" to NULL
-        iter_inner_non_null <- iter_inner
-        iter_inner <- set_none_to_null(iter_inner)
+        # iter_inner <- set_none_to_null(iter_inner)
 
-        out_tbl <- pipeline:::.get_out_tbl(
+        out_tbl <- .get_out_tbl(
           dir_base = dir_base,
           dir_proj = dir_proj,
-          iter = iter_inner
+          iter = iter_inner,
+          p_dots = p_dots
         )
 
         # run
@@ -170,12 +184,13 @@ run <- function(iter,
           settings_to_print = out_tbl %>%
             dplyr::select(-fn),
           iter = iter_inner,
-          ...
+          p_dots = p_dots
         ))
 
         out_tbl_inner <- tibble::tibble(
           dir_proj = dir_proj,
-          iter = list(iter_inner)
+          iter = list(iter_inner),
+          p_dots = p_dots
         )
 
         obj_to_remove_vec <- setdiff(ls(), "out_tbl")
@@ -185,13 +200,15 @@ run <- function(iter,
       })
     }
   )
+
   results_tbl <- purrr::map_df(
     seq_len(nrow(results_tbl_init)),
     function(i) {
-      pipeline:::.get_out_tbl(
+      .get_out_tbl(
         dir_base = dir_base,
         dir_proj = results_tbl_init$dir_proj[[i]],
-        iter = results_tbl_init$iter[[i]][[1]]
+        iter = results_tbl_init$iter[[i]][[1]],
+        p_dots = p_dots
       )
     }
   )
@@ -201,5 +218,6 @@ run <- function(iter,
     file.path(dir_save_base, "results_tbl.rds")
   )
 
+  message("all runs complete")
   results_tbl
 }

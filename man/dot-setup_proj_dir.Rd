@@ -7,25 +7,6 @@
 .setup_proj_dir(dir_proj, dir_proj_empty, p_dots)
 }
 \arguments{
-\item{dir_proj}{\code{character} or \code{function}.
-\itemize{
-  \item{If \code{character}, then this folder is created if it doesn't exist.}
-  \item{If a \code{function}, then it should be a function that
-  has a single argument that expects the named list produced by \code{rlang::list2(...)}.
-  This function should simply return. the project directory as a character.
-  This folder is created if it doesn't exist.}
-}}
-
-\item{dir_proj_empty}{\code{logical}. If \code{TRUE}, then the project directory
-is emptied before any results are saved. Default is \code{FALSE}.
-TODO: Wrap each of the *_fn functions so that whatever they return is saved to the
-correct folder.
-TODO: Enable debugging via a parameter even sub-functions of the main functions.
-TODO: Ensure that functions are not run in global environment but run in own environment (or a clean environment, as in knitr);
-if simply ensuring that they're not run in global environment, then add the function
-to save object to global environment if need be, and then delete it upon function
-exit.}
-
 \item{p_dots}{named list. Named list returned by \code{rlang::list2} applied to
 the ellipses of \code{run}.}
 }

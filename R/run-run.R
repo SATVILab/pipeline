@@ -42,7 +42,9 @@
 #' is rerun even if \code{file.path(dir_proj, "output.html")} exists.
 #' Default is \code{TRUE}.
 #' @export
-.run <- function(dir_proj,
+.run <- function(iter,
+                 p_dots,
+                 dir_proj,
                  delete_old_run = TRUE,
                  data_raw,
                  preprocess = NULL,
@@ -55,7 +57,6 @@
                  force_rerun = "all",
                  settings_to_print = NULL,
                  ...) {
-  message(dir_proj)
 
   # ====================================
   # Preparation
@@ -165,11 +166,21 @@
   # create expected parameters
   # remember to change get_expected_params and its test when this is changed
   expected_params <- list(
-    "preprocess" = c("data_raw", "iter", "p_dots", "dir_proj"),
-    "explore" = c("data_raw", "iter", "data_mod", "dir_proj", "p_dots"),
-    "fit" = c("data_mod", "iter", "p_dots", "dir_proj"),
+    "preprocess" = c(
+      "data_raw", "iter",
+      "p_dots", "dir_proj"
+      ),
+    "explore" = c(
+      "data_raw", "iter", "data_mod",
+      "dir_proj", "p_dots"
+      ),
+    "fit" = c(
+      "data_mod", "iter",
+      "p_dots", "dir_proj"
+      ),
     "extract" = c(
-      "data_raw", "iter", "data_mod", "dir_proj",
+      "data_raw", "iter",
+      "data_mod", "dir_proj",
       "p_dots", "fit_obj"
     ),
     "display" = c(
@@ -181,12 +192,6 @@
       "p_dots", "fit_obj"
     )
   )
-
-  # collect dots
-  p_dots <- list(...)
-  if (any(identical(names(p_dots), ""))) {
-    stop("All dotted arguments must be named.")
-  }
 
   # check that functions have correct parameters, if not NULL
   # .validate_fns(env = env_main, expected_params = NULL)
@@ -238,7 +243,7 @@
       )
     }
 
-    message("pipeline run complete")
+    message("run complete")
 
     return(invisible(dir_proj))
   }
@@ -359,7 +364,7 @@
       dir_stg,
       recursive = TRUE
     )
-    p_dots$dir_stg <- dir_stg
+    iter$dir_stg <- dir_stg
 
     parse_text <- paste0(
       nm,
@@ -367,6 +372,7 @@
       stg,
       "(data_raw = data_raw, ",
       "dir_proj = dir_proj, ",
+      "iter = iter, ",
       "p_dots = p_dots"
     )
     if (!stg == "preprocess") {

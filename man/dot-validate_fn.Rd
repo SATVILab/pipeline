@@ -9,11 +9,15 @@
 \arguments{
 \item{fn_name}{character. Name of single function.}
 
-\item{expected_params}{list. Names are names of functions to be validated and values are expected parameters.
-If \code{NULL}, then a default list is used. Run \code{body(analysispipeline:::.validate_fns)} to see default.
+\item{expected_params}{list.
+Names are names of functions to be validated
+and values are expected parameters.
+If \code{NULL}, then a default list is used.
+Run \code{body(analysispipeline:::.validate_fns)} to see default.
 Default is \code{NULL}.}
 
-\item{env}{environment. Environment in which the functions are found and to be saved.}
+\item{env}{environment.
+Environment in which the functions are found and to be saved.}
 }
 \description{
 Validate parameters for individual functions

@@ -8,10 +8,12 @@
   dir_base = here::here(),
   iter = NULL,
   max_len = NULL,
+  var_to_exc = "",
   var_to_encode = "",
   var_to_fn = list(),
   debug = FALSE,
-  save_cn_and_encoding_in_dir = TRUE
+  save_cn_and_encoding_in_dir = TRUE,
+  delete_pre_existing = FALSE
 )
 }
 \arguments{

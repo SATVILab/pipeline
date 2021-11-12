@@ -99,6 +99,7 @@
 .create_dir_proj <- function(dir_base = here::here(),
                              iter = NULL,
                              max_len = NULL,
+                             var_to_exc = "",
                              var_to_encode = "",
                              var_to_fn = list(),
                              debug = FALSE,
@@ -113,6 +114,10 @@
   path_long_to_short_list_var <- file.path(
     dir_base, "long_to_short_list_var.rds"
   )
+  cn_exc_vec <- which(colnames(iter) %in% var_to_exc)
+  if (length(cn_exc_vec) > 0) {
+    iter <- iter[, -cn_exc_vec]
+  }
   if (!dir.exists(dir_base)) dir.create(dir_base, recursive = TRUE)
   if (!identical(stringr::str_trim(var_to_encode), "")) {
     if (identical(stringr::str_trim(var_to_encode), "~all~")) {

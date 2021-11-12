@@ -1,12 +1,12 @@
 ---
 title: "Untitled"
-output: 
+output:
   html_document:
     toc: true
     toc_depth: 3
 params:
-  dir_proj:""
-  output_tbl: NULL
+  dir_proj: ""
+  settings_to_print: NULL
 ---
 
 ```{css, echo=FALSE}
@@ -25,11 +25,19 @@ knitr::opts_chunk$set(echo = FALSE)
 ```
 
 ```{r , results = "asis"}
-if (!is.null(params$output_tbl)) {
+if (!is.null(params$settings_to_print)) {
+  if("path_proj" %in% colnames(params$settings_to_print)) {
+    cat("\n")
+    cat("path")
+    cat("\n")
+    cat(params$settings_to_print$path_proj)
+    cat("\n")
+    }
   pander::pandoc.table(
-    out_tbl[, -which(colnames(out_tbl) %in% c(
+    params$settings_to_print[, -which(colnames(params$settings_to_print) %in% c(
       "path_proj",
       "iter",
+      "p_dots",
       "fn"
     ))]
   )
@@ -38,16 +46,16 @@ if (!is.null(params$output_tbl)) {
 
 ```{r , results = 'asis'}
 dir_base_vec <- c("exp", "val", "extr", "disp")
-short_to_full_dir_base <- c("exp" = "Exploration", 
-                            "val" = "Validation", 
-                            "extr" = "Results: tables", 
+short_to_full_dir_base <- c("exp" = "Exploration",
+                            "val" = "Validation",
+                            "extr" = "Results: tables",
                             "disp" = "Results: plots")
 for(dir_base in dir_base_vec){
   dir_curr <- file.path(params$dir_proj, dir_base)
   pander::pandoc.header(short_to_full_dir_base[dir_base])
   format <- ifelse(
     knitr::is_html_output(),
-    "png", 
+    "png",
     "pdf")
   pipeline::print_plots_in_dir(dir_curr, format = format)
   if(dir_base == "val"){

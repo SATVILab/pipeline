@@ -30,7 +30,9 @@
 .get_out_tbl <- function(dir_base,
                          dir_proj,
                          dir_sub = NULL,
-                         iter = NULL) {
+                         iter = NULL,
+                         p_dots = NULL) {
+
   out_tbl <- tibble::tibble(
     path_proj = stringr::str_remove(
       dir_proj, paste0(here::here(), "/")
@@ -55,6 +57,12 @@
     dplyr::mutate(
       iter = list(iter)
     )
+
+  if (is.null(p_dots)) {
+    p_dots <- list()
+  }
+  out_tbl <- out_tbl %>%
+    dplyr::mutate(p_dots = list(p_dots))
   path_encoding <- file.path(
     dir_base, "long_to_short_list_var.rds"
   )
