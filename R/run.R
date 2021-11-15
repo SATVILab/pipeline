@@ -30,6 +30,7 @@ run <- function(iter,
   results_tbl_init <- purrr::map_df(
     seq_len(nrow(iter)),
     function(i) {
+
       print(paste0(i, " of ", nrow(iter), " outer combinations"))
 
       iter_row <- iter[i, ]
@@ -76,7 +77,6 @@ run <- function(iter,
           )
           message("no data, skipping")
           out_tbl <- tibble::tibble(
-            dir_base = dir_base,
             dir_proj = NULL,
             iter = list(iter_outer),
             p_dots = p_dots

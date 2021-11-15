@@ -22,7 +22,7 @@
 #' that created the model.
 #'
 #' @return A tibble with one row, containing the following columns:
-#' path_proj (path to project, relative to package directory,
+#' dir_proj (path to project, relative to package directory,
 #'            i.e. excluding the package name),
 #' fn (a column where each element is a list containing all the relative paths
 #'     to files in specified sub-directories),
@@ -34,7 +34,7 @@
                          p_dots = NULL) {
 
   out_tbl <- tibble::tibble(
-    path_proj = stringr::str_remove(
+    dir_proj = stringr::str_remove(
       dir_proj, paste0(here::here(), "/")
     )
   )
