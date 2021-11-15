@@ -207,7 +207,7 @@ run <- function(iter,
       .get_out_tbl(
         dir_base = dir_base,
         dir_proj = results_tbl_init$dir_proj[[i]],
-        iter = results_tbl_init$iter[[i]][[1]],
+        iter = results_tbl_init$iter[[i]],
         p_dots = p_dots
       )
     }
