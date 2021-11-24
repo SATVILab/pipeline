@@ -28,7 +28,7 @@ model run.}
 }
 \value{
 A tibble with one row, containing the following columns:
-path_proj (path to project, relative to package directory,
+dir_proj (path to project, relative to package directory,
            i.e. excluding the package name),
 fn (a column where each element is a list containing all the relative paths
     to files in specified sub-directories),

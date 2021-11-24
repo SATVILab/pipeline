@@ -5,6 +5,8 @@
 \title{Run GAMLSS pipeline}
 \usage{
 .run(
+  iter,
+  p_dots,
   dir_proj,
   delete_old_run = TRUE,
   data_raw,
@@ -46,8 +48,10 @@ Default is \code{TRUE}.}
 
 \item{...}{Named arguments passed onto all functions (preprocess to validate).}
 
-\item{dir_proj_empty}{\code{logical}. If \code{TRUE}, then the project directory
-is emptied before any results are saved. Default is \code{FALSE}.
+\item{dir_proj_empty}{\code{logical}.
+If \code{TRUE}, then the project directory
+is emptied before any results are saved.
+Default is \code{FALSE}.
 TODO: Wrap each of the *_fn functions so that whatever they return is saved to the
 correct folder.
 TODO: Enable debugging via a parameter even sub-functions of the main functions.

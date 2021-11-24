@@ -3,7 +3,6 @@
 export("%>%")
 export(.run)
 export(get_expected_params)
-export(open_folder)
 export(print_plots_in_dir)
 export(print_tbl_in_dir)
 export(return_rds)
