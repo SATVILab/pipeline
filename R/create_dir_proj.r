@@ -267,23 +267,38 @@
         dir_sub <- dir_sub_orig
       }
     }
+
+    fn_vec <- list.files(dir_proj, full.names = TRUE)
+    fn_vec_to_remove <- fn_vec[
+      !grepl("^enc~.*\\.txt$", basename(fn_vec))
+    ]
+    if (length(fn_vec_to_remove) >= 1) {
+      fn_vec_to_remove <- fn_vec_to_remove[fs::is_file(fn_vec_to_remove)]
+    }
+    if (length(fn_vec_to_remove) >= 1) {
+      file.remove(fn_vec_to_remove)
+    }
     if (save_cn_and_encoding_in_dir) {
-      if (nm %in% names(long_to_short_list_var)) {
-        out_tbl <- data.frame(
+      fn_out <- file.path(dir_proj, paste0("enc~", nm, ".txt"))
+      out_tbl <- switch(as.character(nm %in% names(long_to_short_list_var)),
+        "TRUE" = data.frame(
           orig = names(long_to_short_var),
           dir_sub = long_to_short_var
-        )
-        write.table(
-          x = out_tbl,
-          file = file.path(dir_proj, paste0(nm, ".txt")),
-          append = FALSE
-        )
-      } else {
-        write.table(
-          x = "",
-          file = file.path(dir_proj, paste0(nm, ".txt")),
-          append = FALSE
-        )
+        ),
+        "FALSE" = ""
+      )
+      write.table(
+        x = out_tbl,
+        file = fn_out,
+        append = FALSE
+      )
+      fn_vec <- list.files(dir_proj, full.names = TRUE)
+      fn_vec_to_remove <- setdiff(fn_vec, fn_out)
+      if (length(fn_vec_to_remove) >= 1) {
+        fn_vec_to_remove <- fn_vec_to_remove[fs::is_file(fn_vec_to_remove)]
+      }
+      if (length(fn_vec_to_remove) >= 1) {
+        file.remove(fn_vec_to_remove)
       }
     }
     dir_proj <- file.path(
