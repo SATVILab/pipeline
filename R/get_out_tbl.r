@@ -39,6 +39,12 @@
     )
   )
 
+  if (!is.null(iter)) {
+    if (!"data.frame" %in% class(iter)) {
+      iter <- tibble::as_tibble_row(iter)
+    }
+  }
+
   if (is.null(dir_sub)) {
     fn_vec <- list.files(dir_proj, recursive = TRUE, full.names = FALSE)
   } else {

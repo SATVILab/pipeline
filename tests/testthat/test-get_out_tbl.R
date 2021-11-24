@@ -9,8 +9,9 @@ test_that(".get_out_tbl works", {
       file.create(file.path(dir_curr, paste0(i, ".png")))
     }
   }
-  iter_list <- list(x = 1, y = list(list("a", "b", "c")))
+  iter_list <- list(x = 1, y = list(v2 = list("a", "b", "c")))
   out_tbl <- .get_out_tbl(
+    dir_base = dirname(dir_proj),
     dir_proj = dir_proj,
     dir_sub = NULL,
     iter = NULL
@@ -29,6 +30,7 @@ test_that(".get_out_tbl works", {
   )
 
   out_tbl <- .get_out_tbl(
+    dir_base = dirname(dir_proj),
     dir_proj = dir_proj,
     dir_sub = c("a", "b"),
     iter = NULL
@@ -37,7 +39,9 @@ test_that(".get_out_tbl works", {
     out_tbl$fn[[1]],
     16L
   )
+
   out_tbl <- .get_out_tbl(
+    dir_base = dirname(dir_proj),
     dir_proj = dir_proj,
     dir_sub = c("a", "b"),
     iter = iter_list
@@ -48,11 +52,12 @@ test_that(".get_out_tbl works", {
   )
   expect_identical(
     colnames(out_tbl),
-    c("path_proj", "fn", "x", "y")
+    c("dir_proj", "fn", "iter", "p_dots", "x", "y")
   )
 
   iter_tbl <- tibble::tibble(x = 1, y = list(list("a", "b", "c")))
   out_tbl <- .get_out_tbl(
+    dir_base = dirname(dir_proj),
     dir_proj = dir_proj,
     dir_sub = NULL,
     iter = iter_tbl
