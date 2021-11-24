@@ -15,6 +15,7 @@ run <- function(iter,
                 delete_old_run = TRUE,
                 debug = FALSE,
                 force_rerun = "all",
+                remove_non_run_projects = FALSE,
                 ...) {
 
   if (nrow(iter) == 0L) {
@@ -212,6 +213,15 @@ run <- function(iter,
       )
     }
   )
+
+  if (remove_non_run_projects) {
+    clean_dir(
+      clean_dir = dir_base,
+      keep_dir_sub = results_tbl$dir_proj,
+      keep_base_name = "^exc~*\\.txt$",
+      keep_base_name_strict = TRUE
+    )
+  }
 
   saveRDS(
     results_tbl,

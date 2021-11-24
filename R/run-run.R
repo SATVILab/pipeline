@@ -21,8 +21,10 @@
 #'   This function should simply return. the project directory as a character.
 #'   This folder is created if it doesn't exist.}
 #' }
-#' @param dir_proj_empty \code{logical}. If \code{TRUE}, then the project directory
-#' is emptied before any results are saved. Default is \code{FALSE}.
+#' @param dir_proj_empty \code{logical}.
+#' If \code{TRUE}, then the project directory
+#' is emptied before any results are saved.
+#' Default is \code{FALSE}.
 #' TODO: Wrap each of the *_fn functions so that whatever they return is saved to the
 #' correct folder.
 #' TODO: Enable debugging via a parameter even sub-functions of the main functions.
