@@ -195,7 +195,7 @@
       stop(paste0("more than one list name matches ", nm))
     }
     if (length(ind_fn) == 1) {
-      dir_sub <- var_to_fn[[ind_fn]](val, nm)
+      dir_sub <- var_to_fn[[ind_fn]]
     } else {
       dir_sub_orig <- .create_text_ref(
         elem = val,
@@ -367,7 +367,7 @@
 #' .create_text_ref(list(list("a", "b")))
 #' .create_text_ref(list(list("a", "b", function(x) x)))
 .create_text_ref <- function(elem,
-                             max_len = 40,
+                             max_len = Inf,
                              collapse = "") {
   if (is.null(names(elem))) {
     need_name <- purrr::map_lgl(elem, function(x) {
