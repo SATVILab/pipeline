@@ -379,7 +379,7 @@
       any()
     if (need_name) {
       stop("If no name is supplied, then no element within the object can be a closure, expression, language or environment object.") # nolint
-    }lib
+    }
   }
 
   nm_base <- switch(as.character(is.null(names(elem))),
