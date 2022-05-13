@@ -44,7 +44,7 @@
 #' is rerun even if \code{file.path(dir_proj, "output.html")} exists.
 #' Default is \code{TRUE}.
 #' @export
-.run <- function(iter,
+.run_old <- function(iter,
                  p_dots,
                  dir_proj,
                  delete_old_run = TRUE,
