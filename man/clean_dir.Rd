@@ -4,20 +4,39 @@
 \alias{clean_dir}
 \title{Clean up a directory}
 \usage{
-clean_dir(x, fn, base_name_exception = NULL)
+clean_dir(
+  clean_dir,
+  keep_fn = NULL,
+  keep_dir_sub = NULL,
+  keep_base_name = NULL,
+  keep_base_name_strict = FALSE
+)
 }
 \arguments{
-\item{x}{character.
-Directory to clea.}
+\item{clean_dir}{character.
+Directory to clean.}
 
-\item{fn}{character vector.
+\item{keep_fn}{character vector.
 Paths (preferrably absolute) to files
 that should not be deleted.}
 
-\item{base_name_exception}{character vector.
+\item{keep_dir_sub}{character vector.
+Paths to directories in which files
+(and sub-directories) should not
+be deleted.}
+
+\item{keep_base_name}{character.
 File names that are not to be deleted,
-(even if not specified within fn).
+(even if not specified within fn or
+part of a keep sub-directory).
 Matched on the basis of regular expression.}
+
+\item{keep_base_name_strict}{logical.
+If \code{TRUE}, then files with matching base names
+will be keep only if they belong to a super-directory
+of a keep directory.
+This allows keeping files outside the keep sub-directories
+that "describe" the sub-directory.}
 }
 \value{
 If successful, \code{invisible(TRUE)}.

@@ -4,7 +4,7 @@
 \alias{.create_text_ref}
 \title{Create directory addition}
 \usage{
-.create_text_ref(elem, max_len = 40, collapse = "")
+.create_text_ref(elem, max_len = Inf, collapse = "")
 }
 \arguments{
 \item{elem}{some R object.
