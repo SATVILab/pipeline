@@ -1,71 +1,44 @@
 test_that("get_var works", {
   expect_identical(
-    get_var(dep = "x")
-  )
-})
-
-test_that(".fortify_var works", {
-  expect_identical(
-    .fortify_var("x"),
-    list(
-      list(
-        "cn_orig" = "x", "cn_new" = "x",
-        label = "x", "trans" = NULL, expansion = NULL
-      )
-    )
+    get_var(list("x1", "x2")),
+    get_var(c("x1", "x2")),
   )
   expect_identical(
-    .fortify_var(list(list("cn_orig" = "x"))),
-    list(
-      list(
-        "cn_orig" = "x", "cn_new" = "x",
-        label = "x", "trans" = NULL, expansion = NULL
-      )
-    )
+    get_var(list("x1", "x2"), exp = c("a", "b")),
+    get_var(list("x1", "x2"), exp = list(c("a", "b")))
   )
-  # don't allow lists whose elements aren't lists
-  expect_error(
-    .fortify_var(list("cn_orig" = "x"))
+  
+  expect_identical(
+    get_var(list("x1", "x2"), exp = list(list("a"), list("b"))),
+    get_var(list("x1", "x2"), exp = list("a", "b"))
   )
   expect_identical(
-    .fortify_var(list(list(
-      "cn_orig" = "x",
-      expansion = list("pkg" = "splines", "fn" = "ns", args = list(df = 2))
-      ))),
-    list(
-      list(
-        "cn_orig" = "x", "cn_new" = "x",
-        label = "x", "trans" = NULL, expansion =  list(
-          "pkg" = "splines", "fn" = "ns", args = list(df = 2)
-          )
-      )
-    )
+    nrow(get_var(list("x1", "x2"), exp = list(list("a"), list("b")))),
+    4L
+  )
+  # test interaction
+  expect_identical(
+    get_var(
+      list("x1", "x2"),
+      exp = c("a", "b"),
+      interaction = c("a", "b")
+      )$interaction, # nolint
+    list(list(c("a", "b")), list(c("a", "b")))
   )
   expect_identical(
-    .fortify_var(list(list(
-      "cn_orig" = "x",
-      trans = function(x) x^2
-      ))),
-    list(
-      list(
-        "cn_orig" = "x", "cn_new" = "x",
-        label = "x", "trans" = function(x) x^2,
-        expansion = NULL
-      )
-    )
+    get_var(
+      list("x1", "x2"),
+      exp = c("a", "b"),
+      interaction = NULL
+      )$interaction, # nolint
+    lapply(1:2, function(x) list(NULL))
   )
   expect_identical(
-    .fortify_var(list(list(
-      "cn_orig" = "x",
-      "cn_new" = "X",
-      "label" = "CAPITAL X"
-      ))),
-    list(
-      list(
-        "cn_orig" = "x", "cn_new" = "X",
-        label = "CAPITAL X", trans = NULL, expansion = NULL
-      )
-    )
+    get_var(
+      list("x1", "x2"),
+      exp = c("c"),
+      interaction = NULL
+      )$interaction, # nolint
+    lapply(1:2, function(x) list(NULL))
   )
-  expect_error(.fortify_var(list(list(cn = "x"))))
 })
