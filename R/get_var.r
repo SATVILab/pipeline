@@ -53,7 +53,7 @@ get_var <- function(dep,
     non_mod = lapply(non_mod, .fortify_vars_mod)
   )
   var <- purrr::cross_df(var_list)
-  
+
   # check for interactions
   add_interaction(var = var, interaction = interaction)
 }

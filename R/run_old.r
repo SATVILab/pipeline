@@ -1,5 +1,4 @@
-#' @export
-run <- function(iter,
+run_old <- function(iter,
                 dir_base,
                 dir_var_exc = NULL,
                 dir_var_encode = NULL,
