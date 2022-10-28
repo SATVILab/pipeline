@@ -1,7 +1,7 @@
 Package: pipeline
 Type: Package
 Title: Provides structured interface for statistical analysis
-Version: 0.1.0
+Version: 0.0.0.9000
 Author: Miguel Julio Rodo
 Maintainer: Miguel Julio Rodo <rdxmig002@myuct.ac.za>
 Description: More about what it does (maybe more than one line)

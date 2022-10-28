@@ -17,7 +17,6 @@ run <- function(iter,
                 force_rerun = "all",
                 remove_non_run_projects = FALSE,
                 ...) {
-
   if (nrow(iter) == 0L) {
     warning("iter has no rows")
     return(invisible(tibble::tibble()))
@@ -31,7 +30,6 @@ run <- function(iter,
   results_tbl_init <- purrr::map_df(
     seq_len(nrow(iter)),
     function(i) {
-
       print(paste0(i, " of ", nrow(iter), " outer combinations"))
 
       iter_row <- iter[i, ]
@@ -111,11 +109,9 @@ run <- function(iter,
           "TRUE" = "~none~",
           dir_var_exc
         )
-        var_to_encode <- switch(
-          as.character(is.null(dir_var_encode)),
+        var_to_encode <- switch(as.character(is.null(dir_var_encode)),
           "TRUE" = "~none~",
-          "FALSE" = switch(
-            paste0(dir_var_encode, collapse = "", sep = ""),
+          "FALSE" = switch(paste0(dir_var_encode, collapse = "", sep = ""),
             "~all~" = , # nolint
             "all" = colnames(iter_inner_dir),
             dir_var_encode
@@ -225,7 +221,7 @@ run <- function(iter,
 
   saveRDS(
     results_tbl,
-    file.path(dir_save_base, "results_tbl.rds")
+    file.path(dir_base, "results_tbl.rds")
   )
 
   message("all runs complete")
