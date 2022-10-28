@@ -82,7 +82,6 @@ save_objects <- function(...,
                          embed = TRUE,
                          height = 10,
                          width = 12) {
-
   # =======================
   # Get objects
   # =======================
@@ -131,7 +130,6 @@ save_objects <- function(...,
   # if objects have duplicate names, print a warning and
   # then make their names unique
   if (length(name_vec) != length(unique(name_vec))) {
-
     # print warning
     if (!silent) warning("not all objects have unique names")
     # get unique names
@@ -248,13 +246,13 @@ embed_pdf <- function(fn) {
   if (!stringr::str_sub(fn, start = -3) == "pdf") {
     return(invisible(TRUE))
   }
-  if (Sys.getenv(x = "R_GSCMD") == "") {
-    warning("\nR env variable `R_GSCMD` not set.\n\nFirst ensure that GhostScript is installed (it's a program, and not an R package).\nThen set to path to GhostScript executable using `Sys.setenv` (inside R).\nFor example, on Windows it may be `Sys.setenv(R_GSCMD = 'C:\\Program Files (x86)\\gs\\gs9.54.0\\bin\\gswin32c.exe')` (replace '9.54.0' with the relevant version; go to 'C:\\Program Files (x86)\\gs' to see which). Note that you must choose the executable ending in c, e.g. 'gswin32c.exe' and not 'gswin32.exe'. \n\nEmbedding not performed.")
-    return(invisible(FALSE))
-  }
   out <- try(grDevices::embedFonts(file = fn))
   if (class(out) == "try-error") {
-    warning(paste0("embedding of ", fn, " failed for some reason."))
+    if (!nzchar(Sys.getenv(x = "R_GSCMD"))) {
+      warning("\nR env variable `R_GSCMD` not set.\n\nFirst ensure that GhostScript is installed (it's a program, and not an R package).\nThen set to path to GhostScript executable using `Sys.setenv` (inside R).\nFor example, on Windows it may be `Sys.setenv(R_GSCMD = 'C:\\Program Files (x86)\\gs\\gs9.54.0\\bin\\gswin32c.exe')` (replace '9.54.0' with the relevant version; go to 'C:\\Program Files (x86)\\gs' to see which). Note that you must choose the executable ending in c, e.g. 'gswin32c.exe' and not 'gswin32.exe'. \n\nEmbedding not performed.") # nolint
+    } else {
+      warning(paste0("embedding of ", fn, " failed for some reason."))
+    }
     return(invisible(FALSE))
   }
   invisible(TRUE)
