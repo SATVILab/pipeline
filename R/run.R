@@ -16,6 +16,7 @@ run <- function(iter,
                 debug = FALSE,
                 force_rerun = "all",
                 remove_non_run_projects = FALSE,
+                pipeline_debug = NULL,
                 ...) {
   if (nrow(iter) == 0L) {
     warning("iter has no rows")
@@ -30,6 +31,11 @@ run <- function(iter,
   results_tbl_init <- purrr::map_df(
     seq_len(nrow(iter)),
     function(i) {
+      if (!is.null(pipeline_debug)) {
+        if (pipeline_debug == "outer") {
+          browser()
+        }
+      }
       print(paste0(i, " of ", nrow(iter), " outer combinations"))
 
       iter_row <- iter[i, ]
@@ -86,6 +92,11 @@ run <- function(iter,
 
       j <- 1
       purrr::map_df(seq_len(nrow(iter_outer)), function(j) {
+        if (!is.null(pipeline_debug)) {
+          if (pipeline_debug == "inner") {
+            browser()
+          }
+        }
         iter_inner <- iter_outer[j, ]
         print(paste0(j, " of ", nrow(iter_outer), " inner combinations"))
 
