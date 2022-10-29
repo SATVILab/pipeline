@@ -238,6 +238,10 @@ run <- function(iter,
     }
   }
 
+  saveRDS(
+    results_tbl,
+    file.path(dir_base, "results_tbl.rds")
+  )
 
   message("all runs complete")
   results_tbl
