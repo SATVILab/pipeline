@@ -227,12 +227,15 @@ run <- function(iter,
   )
 
   if (remove_non_run_projects) {
-    clean_dir(
+    x <- try(clean_dir(
       clean_dir = dir_base,
       keep_dir_sub = results_tbl$dir_proj,
       keep_base_name = "^exc~*\\.txt$",
       keep_base_name_strict = TRUE
-    )
+    ))
+    if (identical(class(x), "try-error")) {
+      message(x)
+    }
   }
 
 
