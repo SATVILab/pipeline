@@ -221,6 +221,11 @@ run <- function(iter,
     }
   )
 
+  saveRDS(
+    results_tbl,
+    file.path(dir_base, "results_tbl.rds")
+  )
+
   if (remove_non_run_projects) {
     clean_dir(
       clean_dir = dir_base,
@@ -230,10 +235,6 @@ run <- function(iter,
     )
   }
 
-  saveRDS(
-    results_tbl,
-    file.path(dir_base, "results_tbl.rds")
-  )
 
   message("all runs complete")
   results_tbl
