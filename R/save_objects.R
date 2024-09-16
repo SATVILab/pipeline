@@ -223,7 +223,7 @@ save_objects <- function(...,
         fn <- file.path(dir_save, paste0(names(obj_list)[i], ".", gg_device))
         fn <- suppressWarnings(normalizePath(fn))
         if (file.exists(fn)) try(file.remove(fn), silent = TRUE)
-        cowplot::ggsave2(
+        ggplot2::ggsave2(
           filename = fn,
           plot = obj_list[[i]],
           width = width,
